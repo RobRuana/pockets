@@ -12,3 +12,7 @@ A collection of helpful Python tools!
 <a href='https://coveralls.io/r/RobRuana/pockets'>
   <img src='https://coveralls.io/repos/RobRuana/pockets/badge.svg' alt='Coverage Status' />
 </a>
+
+<a href='https://readthedocs.org/projects/pockets/?badge=latest'>
+    <img src='https://readthedocs.org/projects/pockets/badge/?version=latest' alt='Documentation Status' />
+</a>
