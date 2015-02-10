@@ -5,5 +5,10 @@ A collection of helpful Python tools!
 ----------------------------
 
 <a href="https://travis-ci.org/RobRuana/pockets">
-  <img alt="build status" src="https://travis-ci.org/RobRuana/pockets.svg">
+  <img src="https://travis-ci.org/RobRuana/pockets.svg" alt='Build Status' />
+</a>
+
+
+<a href='https://coveralls.io/r/RobRuana/pockets'>
+  <img src='https://coveralls.io/repos/RobRuana/pockets/badge.svg' alt='Coverage Status' />
 </a>
