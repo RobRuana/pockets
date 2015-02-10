@@ -23,7 +23,7 @@ setup(
     author='Rob Ruana',
     author_email='rob@robruana.com',
     description=__doc__,
-    long_description=open('README.rst', 'r').read(),
+    long_description=open('README.md', 'r').read(),
     zip_safe=True,
     classifiers=[
         'Development Status :: 4 - Beta',
