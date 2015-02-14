@@ -2,9 +2,12 @@
 # Copyright 2015 Rob Ruana
 # Licensed under the BSD License, see LICENSE file for details.
 
-"""A collection of helpful iterators."""
+"""A collection of helpful iterators!"""
 
+from __future__ import absolute_import
 import collections
+
+from pockets import six
 
 __all__ = ["peek_iter", "modify_iter"]
 
@@ -46,17 +49,14 @@ class peek_iter(object):
         """__init__(o, sentinel=None)"""
         self._iterable = iter(*args)
         self._cache = collections.deque()
-        if len(args) == 2:
-            self.sentinel = args[1]
-        else:
-            self.sentinel = object()
+        self.sentinel = args[1] if len(args) > 1 else object()
 
     def __iter__(self):
         return self
 
     def __next__(self, n=None):
-        # note: prevent 2to3 to transform self.next() in next(self) which
-        # causes an infinite loop !
+        # NOTE: Prevent 2to3 from transforming self.next() in next(self),
+        # which causes an infinite loop!
         return getattr(self, 'next')(n)
 
     def _fillcache(self, n):
@@ -212,7 +212,7 @@ class modify_iter(peek_iter):
             args = args[:2]
         else:
             self.modifier = lambda x: x
-        if not callable(self.modifier):
+        if not six.callable(self.modifier):
             raise TypeError('modify_iter(o, modifier): '
                             'modifier must be callable')
         super(modify_iter, self).__init__(*args)

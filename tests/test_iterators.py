@@ -4,8 +4,11 @@
 
 """Tests for :mod:`pockets.iterators` module."""
 
-from pockets.iterators import peek_iter, modify_iter
+from __future__ import absolute_import
 from unittest import TestCase
+
+from pockets.iterators import peek_iter, modify_iter
+from pockets.six import u
 
 
 class BaseIteratorsTest(TestCase):
@@ -334,7 +337,7 @@ class ModifyIterTest(BaseIteratorsTest):
         self.assertEqual(expected, [i for i in it])
 
     def test_modifier_rstrip_unicode(self):
-        a = [u'', u'  ', u'  a  ', u'b  ', u'  c', u'  ', u'']
+        a = [u(''), u('  '), u('  a  '), u('b  '), u('  c'), u('  '), u('')]
         it = modify_iter(a, modifier=lambda s: s.rstrip())
-        expected = [u'', u'', u'  a', u'b', u'  c', u'', u'']
+        expected = [u(''), u(''), u('  a'), u('b'), u('  c'), u(''), u('')]
         self.assertEqual(expected, [i for i in it])

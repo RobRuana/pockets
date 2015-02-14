@@ -11,8 +11,7 @@ from setuptools import setup, find_packages
 # http://stackoverflow.com/q/458550
 exec(open(os.path.join('pockets', '_version.py')).read())
 
-reqs = open('requirements.txt', 'r').read().strip().splitlines()
-reqs_test = open('requirements_test.txt', 'r').read().strip().splitlines()
+test_reqs = open('requirements_test.txt', 'r').read().strip().splitlines()
 
 setup(
     name='pockets',
@@ -39,7 +38,6 @@ setup(
     ],
     platforms='any',
     packages=find_packages(),
-    setup_requires=reqs,
-    tests_require=reqs_test,
+    tests_require=test_reqs,
     test_suite='nose.collector',
 )

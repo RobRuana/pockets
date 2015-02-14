@@ -1,0 +1,5 @@
+[run]
+omit = pockets/six.py
+
+[report]
+omit = pockets/six.py

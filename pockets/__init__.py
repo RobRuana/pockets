@@ -8,7 +8,19 @@
 
 """
 
-from pockets import iterators
-from pockets._version import __version__
 
-__all__ = ["__version__", "iterators"]
+from __future__ import absolute_import, unicode_literals
+from pockets._version import __version__
+from pockets.collections import is_listy, listify, mappify
+from pockets.iterators import peek_iter, modify_iter
+from pockets.string import camel, uncamel, splitcaps
+
+__all__ = ["__version__",
+           "is_listy",
+           "listify",
+           "mappify",
+           "peek_iter",
+           "modify_iter",
+           "camel",
+           "uncamel",
+           "splitcaps"]
