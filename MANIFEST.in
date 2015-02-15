@@ -1,5 +1,6 @@
-include README.md
+include README.rst
 include LICENSE
 include CHANGES
+include requirements.txt
 include requirements_docs.txt
 include requirements_test.txt

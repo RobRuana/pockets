@@ -1,3 +1,4 @@
+six>=1.5.2
 Sphinx==1.2.3
 sphinxcontrib-napoleon>=0.2.10
 coverage>=3.7.1

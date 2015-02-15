@@ -9,11 +9,11 @@ import re
 
 from pockets.collections import listify
 
-__all__ = ["camel",
-           "uncamel",
-           "splitcaps"]
+__all__ = ["camel", "uncamel", "splitcaps"]
 
-_whitespace_group_re = re.compile("(\s+)", re.L | re.M | re.U)
+_def_flags = re.L | re.M | re.U
+
+_whitespace_group_re = re.compile("(\s+)", _def_flags)
 
 _uncamel_re = re.compile(
     "("  # The whole expression is in a single group
@@ -25,7 +25,7 @@ _uncamel_re = re.compile(
     # Clause 2
     "(?<=[^\s])"  # Preceded by a character that is not a space
     "[A-Z][^A-Z\s]*?[a-z]+[^A-Z\s]*"  # Capitalized word
-    ")", re.L | re.M | re.U)
+    ")", _def_flags)
 
 _splitcaps_template = (
     # Clause 1
@@ -41,8 +41,7 @@ _splitcaps_template = (
     "[^A-Z{2}]+")  # All non-uppercase
 
 _splitcaps_pattern = _splitcaps_template.format("({0})|", "{0}|", "{0}")
-_splitcaps_re = re.compile(_splitcaps_template.format("", "", ""),
-                           re.L | re.M | re.U)
+_splitcaps_re = re.compile(_splitcaps_template.format("", "", ""), _def_flags)
 
 
 def camel(value, sep="_", cap_initial=True, cap_segments=None,
@@ -117,8 +116,7 @@ def splitcaps(value, pattern=None, maxsplit=0, flags=0):
         if flags:
             r = re.compile(_splitcaps_pattern.format(pattern), flags)
         else:
-            r = re.compile(_splitcaps_pattern.format(pattern),
-                           re.L | re.M | re.U)
+            r = re.compile(_splitcaps_pattern.format(pattern), _def_flags)
     elif flags:
         r = re.compile(_splitcaps_re.pattern, flags)
     else:

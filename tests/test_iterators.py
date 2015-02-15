@@ -8,7 +8,7 @@ from __future__ import absolute_import
 from unittest import TestCase
 
 from pockets.iterators import peek_iter, modify_iter
-from pockets.six import u
+from six import u
 
 
 class BaseIteratorsTest(TestCase):

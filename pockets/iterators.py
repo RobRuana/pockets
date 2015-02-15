@@ -7,7 +7,7 @@
 from __future__ import absolute_import
 import collections
 
-from pockets import six
+import six
 
 __all__ = ["peek_iter", "modify_iter"]
 

@@ -11,6 +11,7 @@ from setuptools import setup, find_packages
 # http://stackoverflow.com/q/458550
 exec(open(os.path.join('pockets', '_version.py')).read())
 
+reqs = open('requirements.txt', 'r').read().strip().splitlines()
 test_reqs = open('requirements_test.txt', 'r').read().strip().splitlines()
 
 setup(
@@ -22,7 +23,7 @@ setup(
     author='Rob Ruana',
     author_email='rob@robruana.com',
     description=__doc__,
-    long_description=open('README.md', 'r').read(),
+    long_description=open('README.rst', 'r').read(),
     zip_safe=True,
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -38,6 +39,7 @@ setup(
     ],
     platforms='any',
     packages=find_packages(),
+    install_requires=reqs,
     tests_require=test_reqs,
     test_suite='nose.collector',
 )

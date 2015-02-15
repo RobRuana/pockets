@@ -8,8 +8,8 @@ from __future__ import absolute_import
 import re
 from unittest import TestCase
 
-from pockets.six import u
 from pockets.string import camel, uncamel, splitcaps
+from six import u
 
 
 class UncamelTest(TestCase):
