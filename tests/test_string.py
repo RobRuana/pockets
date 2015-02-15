@@ -592,6 +592,8 @@ class SplitcapsTest(TestCase):
         tests = [
             ("ASDf test", ["AS", "Df test"],
              {"flags": 0}),
+            ("ASDf Test", ["ASDf ", "Test"],
+             {"flags": re.IGNORECASE}),
             ("ASDf test", ["AS", "Df", "test"],
              {"pattern": "\s", "flags": 0}),
             ("ASDf Test", ["ASDf", "Test"],
