@@ -40,11 +40,13 @@ def resolve(name, modules=None):
 
     obj_path = name.split('.')
     search_paths = []
-    for module_path in listify(modules):
-        search_paths.append(module_path.split('.') + obj_path)
-    search_paths.append(obj_path)
-    caller = inspect.getouterframes(inspect.currentframe())[1][0].f_globals
-    search_paths.append(caller['__name__'].split('.') + obj_path)
+    if modules:
+        for module_path in listify(modules):
+            search_paths.append(module_path.split('.') + obj_path)
+    else:
+        search_paths.append(obj_path)
+        caller = inspect.getouterframes(inspect.currentframe())[1][0].f_globals
+        search_paths.append(caller['__name__'].split('.') + obj_path)
 
     for path in search_paths:
         try:

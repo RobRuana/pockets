@@ -24,7 +24,9 @@ class TestResolve(TestCase):
 
     def test_local_module(self):
         self.assertTrue(resolve("TestResolve") is self.__class__)
-        self.assertTrue(resolve("TestResolve", "pockets") is self.__class__)
+        self.assertTrue(resolve("TestResolve", "tests.test_inspect") is
+                        self.__class__)
+        self.assertRaises(ValueError, resolve, "TestResolve", "pockets")
 
     def test_modules_none(self):
         self.assertTrue(resolve("pockets") is pockets)
