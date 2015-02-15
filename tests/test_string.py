@@ -246,6 +246,18 @@ class CamelTest(TestCase):
             ("1_tes_asd qwe_yugo", "1TesAsd qweYugo", {"cap_initial": False}),
         ])
 
+    def test_cap_initial_preserve_caps(self):
+        self._run_tests([
+            ("teSt_aSdF", "TeStASdF",
+             {"cap_initial": True, "preserve_caps": True}),
+            ("teSt_aSdF", "TestAsdf",
+             {"cap_initial": True, "preserve_caps": False}),
+            ("teSt_aSdF", "teStASdF",
+             {"cap_initial": False, "preserve_caps": True}),
+            ("teSt_aSdF", "testAsdf",
+             {"cap_initial": False, "preserve_caps": False}),
+        ])
+
     def test_cap_segments(self):
         self._run_tests([
             ("tes_asd_zxc", "TesAsdZxc", {"cap_segments": None}),
