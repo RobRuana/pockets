@@ -13,14 +13,23 @@ __all__ = ["is_listy", "listify", "mappify"]
 
 
 def is_listy(x):
+    """Return True if the object is "listy", i.e. a list-like object.
+
+    "Listy" is defined as a sized iterable which is neither a map or string:
+        >>> is_listy(["a", "b"])
+        True
+        >>> is_listy(set())
+        True
+        >>> is_listy({"a": "b"})
+        False
+        >>> is_listy("Just a string")
+        False
+
     """
-    returns a boolean indicating whether the passed object is "listy",
-    which we define as a sized iterable which is not a map or string
-    """
-    return (isinstance(x, Sized)
-            and isinstance(x, Iterable)
-            and not isinstance(x, Mapping)
-            and not isinstance(x, six.string_types))
+    return (isinstance(x, Sized) and
+            isinstance(x, Iterable) and
+            not isinstance(x, Mapping) and
+            not isinstance(x, six.string_types))
 
 
 def listify(x, minlen=0, default=None, cls=None):

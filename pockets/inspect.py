@@ -20,19 +20,15 @@ def resolve(name, modules=None):
         1. path.to.module.method
         2. path.to.module.ClassName
 
-    Parameters
-    ----------
-    name : str or object
-        The name to resolve.
-    modules : str or list of str, optional
-        A module or list of modules.
+    Args:
+        name (str or object): The name to resolve.
+        modules (str or list, optional): A module or list of modules.
 
     Returns:
-      object: Returns the object, if found.  If not, propagates the error.
+        object: Returns the object, if found.  If not, raises ValueError.
 
-    Raises
-    ------
-    ValueError: If the object specified by "name" can't be resolved
+    Raises:
+        ValueError: If the object specified by `name` can't be resolved
 
     """
     if not isinstance(name, string_types):

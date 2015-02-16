@@ -17,12 +17,12 @@ from pockets.iterators import peek_iter, modify_iter
 from pockets.string import camel, uncamel, splitcaps
 
 __all__ = ["__version__",
+           "camel",
+           "uncamel",
+           "splitcaps",
+           "resolve",
            "is_listy",
            "listify",
            "mappify",
-           "resolve",
            "peek_iter",
-           "modify_iter",
-           "camel",
-           "uncamel",
-           "splitcaps"]
+           "modify_iter"]

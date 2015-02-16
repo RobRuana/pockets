@@ -20,13 +20,17 @@ import os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
-# -- Autodoc configuration -----------------------------------------------------
+# -- Autodoc configuration ------------------------------------------------
 
 autoclass_content = 'class'
 
 autodoc_member_order = 'bysource'
 
 autodoc_default_flags = ['members']
+
+# -- Napoleon configuration -----------------------------------------------
+
+napoleon_use_rtype = False
 
 # -- General configuration ------------------------------------------------
 
