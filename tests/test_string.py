@@ -222,117 +222,173 @@ class CamelTest(TestCase):
             ("test0_1as 01 t 01test_01asdf01", "Test01as 01 T 01test01asdf01"),
         ])
 
-    def test_cap_initial(self):
+    def test_lower_initial_bool(self):
         self._run_tests([
-            ("test", "Test", {"cap_initial": True}),
-            ("test", "test", {"cap_initial": False}),
-            ("tes_asd", "TesAsd", {"cap_initial": True}),
-            ("tes_asd", "tesAsd", {"cap_initial": False}),
-            ("01tes_asd", "01tesAsd", {"cap_initial": True}),
-            ("01tes_asd", "01tesAsd", {"cap_initial": False}),
-            ("01_tes_asd", "01TesAsd", {"cap_initial": True}),
-            ("01_tes_asd", "01TesAsd", {"cap_initial": False}),
+            ("test", "Test", {"lower_initial": False}),
+            ("test", "test", {"lower_initial": True}),
+            ("tes_asd", "TesAsd", {"lower_initial": False}),
+            ("tes_asd", "tesAsd", {"lower_initial": True}),
+            ("01tes_asd", "01tesAsd", {"lower_initial": False}),
+            ("01tes_asd", "01tesAsd", {"lower_initial": True}),
+            ("01_tes_asd", "01TesAsd", {"lower_initial": False}),
+            ("01_tes_asd", "01TesAsd", {"lower_initial": True}),
         ])
 
-    def test_cap_initial_multiword(self):
+    def test_lower_initial_int(self):
         self._run_tests([
-            ("test qwer", "Test Qwer", {"cap_initial": True}),
-            ("test qwer", "test qwer", {"cap_initial": False}),
-            ("tes_asd qwe", "TesAsd Qwe", {"cap_initial": True}),
-            ("tes_asd qwe", "tesAsd qwe", {"cap_initial": False}),
-            ("01tes_asd qwe_yugo", "01tesAsd QweYugo", {"cap_initial": True}),
-            ("01tes_asd qwe_yugo", "01tesAsd qweYugo", {"cap_initial": False}),
-            ("1_tes_asd qwe_yugo", "1TesAsd QweYugo", {"cap_initial": True}),
-            ("1_tes_asd qwe_yugo", "1TesAsd qweYugo", {"cap_initial": False}),
+            ("test", "Test", {"lower_initial": 10}),
+            ("test", "test", {"lower_initial": 0}),
+            ("tes_asd", "TesAsd", {"lower_initial": -10}),
+            ("tes_asd", "tesAsd", {"lower_initial": 0}),
+            ("01tes_asd", "01tesAsd", {"lower_initial": 0}),
+            ("01tes_asd", "01tesasd", {"lower_initial": 1}),
+            ("01_tes_asd", "01TesAsd", {"lower_initial": 0}),
+            ("01_tes_asd", "01tesAsd", {"lower_initial": 1}),
+            ("01_tes_asd", "01Tesasd", {"lower_initial": -1}),
         ])
 
-    def test_cap_initial_preserve_caps(self):
+    def test_lower_initial_list(self):
+        self._run_tests([
+            ("tes_asd_zxc", "TesAsdZxc", {"lower_initial": []}),
+            ("tes_asd_zxc", "tesAsdZxc", {"lower_initial": [0]}),
+            ("tes_asd_zxc", "TesasdZxc", {"lower_initial": [1]}),
+            ("tes_asd_zxc", "TesAsdzxc", {"lower_initial": [2]}),
+            ("tes_asd_zxc", "TesAsdZxc", {"lower_initial": [3]}),
+            ("tes_asd_zxc", "TesAsdZxc", {"lower_initial": [100]}),
+            ("tes_asd_zxc", "TesAsdZxc", {"lower_initial": [-100]}),
+            ("tes_asd_zxc", "TesAsdZxc", {"lower_initial": [-4]}),
+            ("tes_asd_zxc", "tesAsdZxc", {"lower_initial": [-3]}),
+            ("tes_asd_zxc", "TesasdZxc", {"lower_initial": [-2]}),
+            ("tes_asd_zxc", "TesAsdzxc", {"lower_initial": [-1]}),
+            ("tes_asd_zxc", "tesAsdzxc", {"lower_initial": [0, -1]}),
+            ("tes_asd_zxc", "tesasdzxc", {"lower_initial": [0, 1, 2]}),
+        ])
+
+    def test_lower_initial_multiword(self):
+        self._run_tests([
+            ("test qwer", "Test Qwer", {"lower_initial": False}),
+            ("test qwer", "test qwer", {"lower_initial": True}),
+            ("tes_asd qwe", "TesAsd Qwe", {"lower_initial": False}),
+            ("tes_asd qwe", "tesAsd qwe", {"lower_initial": True}),
+            ("01tes_asd qwe_yugo", "01tesAsd QweYugo",
+             {"lower_initial": False}),
+            ("01tes_asd qwe_yugo", "01tesAsd qweYugo",
+             {"lower_initial": True}),
+            ("1_tes_asd qwe_yugo", "1TesAsd QweYugo",
+             {"lower_initial": False}),
+            ("1_tes_asd qwe_yugo", "1TesAsd qweYugo",
+             {"lower_initial": True}),
+        ])
+
+    def test_lower_initial_preserve_upper(self):
         self._run_tests([
             ("teSt_aSdF", "TeStASdF",
-             {"cap_initial": True, "preserve_caps": True}),
+             {"lower_initial": False, "preserve_upper": True}),
             ("teSt_aSdF", "TestAsdf",
-             {"cap_initial": True, "preserve_caps": False}),
+             {"lower_initial": False, "preserve_upper": False}),
             ("teSt_aSdF", "teStASdF",
-             {"cap_initial": False, "preserve_caps": True}),
+             {"lower_initial": True, "preserve_upper": True}),
             ("teSt_aSdF", "testAsdf",
-             {"cap_initial": False, "preserve_caps": False}),
+             {"lower_initial": True, "preserve_upper": False}),
         ])
 
-    def test_cap_segments(self):
+    def test_upper_segments(self):
         self._run_tests([
-            ("tes_asd_zxc", "TesAsdZxc", {"cap_segments": None}),
-            ("tes_asd_zxc", "TESAsdZxc", {"cap_segments": 0}),
-            ("tes_asd_zxc", "TesASDZxc", {"cap_segments": 1}),
-            ("tes_asd_zxc", "TesAsdZXC", {"cap_segments": 2}),
-            ("tes_asd_zxc", "TesAsdZxc", {"cap_segments": 3}),
-            ("tes_asd_zxc", "TesAsdZxc", {"cap_segments": 1000}),
-            ("tes_asd_zxc", "TesAsdZxc", {"cap_segments": -1000}),
-            ("tes_asd_zxc", "TesAsdZxc", {"cap_segments": -4}),
-            ("tes_asd_zxc", "TESAsdZxc", {"cap_segments": -3}),
-            ("tes_asd_zxc", "TesASDZxc", {"cap_segments": -2}),
-            ("tes_asd_zxc", "TesAsdZXC", {"cap_segments": -1}),
-            ("tes_asd_zxc", "TESAsdZxc", {"cap_segments": [0]}),
-            ("tes_asd_zxc", "TesASDZxc", {"cap_segments": [1]}),
-            ("tes_asd_zxc", "TesAsdZXC", {"cap_segments": [2]}),
-            ("tes_asd_zxc", "TesAsdZxc", {"cap_segments": [3]}),
-            ("tes_asd_zxc", "TesAsdZxc", {"cap_segments": [1000]}),
-            ("tes_asd_zxc", "TesAsdZxc", {"cap_segments": [-1000]}),
-            ("tes_asd_zxc", "TesAsdZxc", {"cap_segments": [-4]}),
-            ("tes_asd_zxc", "TESAsdZxc", {"cap_segments": [-3]}),
-            ("tes_asd_zxc", "TesASDZxc", {"cap_segments": [-2]}),
-            ("tes_asd_zxc", "TesAsdZXC", {"cap_segments": [-1]}),
-            ("tes_asd_zxc", "TesAsdZxc", {"cap_segments": [-4, 3]}),
-            ("tes_asd_zxc", "TesAsdZxc", {"cap_segments": [3, -4]}),
-            ("tes_asd_zxc", "TESAsdZXC", {"cap_segments": [0, -1]}),
-            ("tes_asd_zxc", "TESAsdZXC", {"cap_segments": [2, -3]}),
-            ("tes_asd_zxc", "TesASDZxc", {"cap_segments": [1, -2]}),
-            ("tes_asd_zxc", "TESASDZxc", {"cap_segments": [0, 1]}),
-            ("tes_asd_zxc", "TesASDZXC", {"cap_segments": [1, 2]}),
-            ("tes_asd_zxc", "TesASDZXC", {"cap_segments": [-2, -1]}),
-            ("tes_asd_zxc", "TESASDZXC", {"cap_segments": [0, 1, 2]}),
-            ("tes_asd_zxc", "TESASDZXC", {"cap_segments": [0, 1, -1]}),
-            ("tes_asd_zxc", "TESASDZXC", {"cap_segments": [0, 2, -2]}),
-            ("tes_asd_zxc", "TESASDZXC", {"cap_segments": [1, -1, -3]}),
-            ("tes_asd_zxc", "TesASDZXC", {"cap_segments": [1, -1, -4]}),
-            ("tes_asd_zxc", "TesASDZxc", {"cap_segments": [1, 3, -4]}),
-            ("tes_asd_zxc", "TesAsdZxc", {"cap_segments": [100, 3, -4]}),
-            ("tes_asd_zxc", "TESAsdZxc", {"cap_segments": [0, 0, 0]}),
-            ("tes_asd_zxc", "TesASDZXC", {"cap_segments": [1, 2, 3, 4]}),
-            ("tes_asd_zxc", "TESASDZXC", {"cap_segments": [0, 1, 2, 3, 4]}),
-            ("tes_asd_zxc", "TesAsdZxc", {"cap_segments": [-5, -4, 3, 4, 5]}),
-            ("tes_asd_zxc", "TESAsdZXC", {"cap_segments": [0, 2, 3, 4, 5, 6]})
+            ("tes_asd_zxc", "TesAsdZxc", {"upper_segments": None}),
+            ("tes_asd_zxc", "TESAsdZxc", {"upper_segments": 0}),
+            ("tes_asd_zxc", "TesASDZxc", {"upper_segments": 1}),
+            ("tes_asd_zxc", "TesAsdZXC", {"upper_segments": 2}),
+            ("tes_asd_zxc", "TesAsdZxc", {"upper_segments": 3}),
+            ("tes_asd_zxc", "TesAsdZxc", {"upper_segments": 1000}),
+            ("tes_asd_zxc", "TesAsdZxc", {"upper_segments": -1000}),
+            ("tes_asd_zxc", "TesAsdZxc", {"upper_segments": -4}),
+            ("tes_asd_zxc", "TESAsdZxc", {"upper_segments": -3}),
+            ("tes_asd_zxc", "TesASDZxc", {"upper_segments": -2}),
+            ("tes_asd_zxc", "TesAsdZXC", {"upper_segments": -1}),
+            ("tes_asd_zxc", "TESAsdZxc", {"upper_segments": [0]}),
+            ("tes_asd_zxc", "TesASDZxc", {"upper_segments": [1]}),
+            ("tes_asd_zxc", "TesAsdZXC", {"upper_segments": [2]}),
+            ("tes_asd_zxc", "TesAsdZxc", {"upper_segments": [3]}),
+            ("tes_asd_zxc", "TesAsdZxc", {"upper_segments": [1000]}),
+            ("tes_asd_zxc", "TesAsdZxc", {"upper_segments": [-1000]}),
+            ("tes_asd_zxc", "TesAsdZxc", {"upper_segments": [-4]}),
+            ("tes_asd_zxc", "TESAsdZxc", {"upper_segments": [-3]}),
+            ("tes_asd_zxc", "TesASDZxc", {"upper_segments": [-2]}),
+            ("tes_asd_zxc", "TesAsdZXC", {"upper_segments": [-1]}),
+            ("tes_asd_zxc", "TesAsdZxc", {"upper_segments": [-4, 3]}),
+            ("tes_asd_zxc", "TesAsdZxc", {"upper_segments": [3, -4]}),
+            ("tes_asd_zxc", "TESAsdZXC", {"upper_segments": [0, -1]}),
+            ("tes_asd_zxc", "TESAsdZXC", {"upper_segments": [2, -3]}),
+            ("tes_asd_zxc", "TesASDZxc", {"upper_segments": [1, -2]}),
+            ("tes_asd_zxc", "TESASDZxc", {"upper_segments": [0, 1]}),
+            ("tes_asd_zxc", "TesASDZXC", {"upper_segments": [1, 2]}),
+            ("tes_asd_zxc", "TesASDZXC", {"upper_segments": [-2, -1]}),
+            ("tes_asd_zxc", "TESASDZXC", {"upper_segments": [0, 1, 2]}),
+            ("tes_asd_zxc", "TESASDZXC", {"upper_segments": [0, 1, -1]}),
+            ("tes_asd_zxc", "TESASDZXC", {"upper_segments": [0, 2, -2]}),
+            ("tes_asd_zxc", "TESASDZXC", {"upper_segments": [1, -1, -3]}),
+            ("tes_asd_zxc", "TesASDZXC", {"upper_segments": [1, -1, -4]}),
+            ("tes_asd_zxc", "TesASDZxc", {"upper_segments": [1, 3, -4]}),
+            ("tes_asd_zxc", "TesAsdZxc", {"upper_segments": [100, 3, -4]}),
+            ("tes_asd_zxc", "TESAsdZxc", {"upper_segments": [0, 0, 0]}),
+            ("tes_asd_zxc", "TesASDZXC", {"upper_segments": [1, 2, 3, 4]}),
+            ("tes_asd_zxc", "TESASDZXC", {"upper_segments": [0, 1, 2, 3, 4]}),
+            ("tes_asd_zxc", "TesAsdZxc",
+             {"upper_segments": [-5, -4, 3, 4, 5]}),
+            ("tes_asd_zxc", "TESAsdZXC",
+             {"upper_segments": [0, 2, 3, 4, 5, 6]})
         ])
 
-    def test_cap_segments_multiword(self):
+    def test_upper_segments_multiword(self):
         self._run_tests([
             ("tes_asd_zxc qwe_yug_poi", "TESAsdZXC QWEYugPOI",
-             {"cap_segments": [0, -1]}),
+             {"upper_segments": [0, -1]}),
             ("tes_asd_zxc qwe_yug_poi", "TESAsdZXC QWEYugPOI",
-             {"cap_segments": [2, -3]}),
+             {"upper_segments": [2, -3]}),
             ("tes_asd_zxc qwe_yug_poi", "TesASDZxc QweYUGPoi",
-             {"cap_segments": [1, -2]}),
+             {"upper_segments": [1, -2]}),
             ("tes_asd_zxc qwe_yug_poi", "TESASDZxc QWEYUGPoi",
-             {"cap_segments": [0, 1]}),
+             {"upper_segments": [0, 1]}),
             ("tes_asd_zxc qwe_yug_poi", "TesASDZXC QweYUGPOI",
-             {"cap_segments": [1, 2]}),
+             {"upper_segments": [1, 2]}),
             ("tes_asd_zxc qwe_yug_poi", "TesASDZXC QweYUGPOI",
-             {"cap_segments": [-2, -1]}),
+             {"upper_segments": [-2, -1]}),
             ("tes_asd_zxc qwe_yug_poi", "TESASDZXC QWEYUGPOI",
-             {"cap_segments": [0, 1, 2]}),
+             {"upper_segments": [0, 1, 2]}),
         ])
 
-    def test_preserve_caps(self):
+    def test_preserve_upper(self):
         self._run_tests([
-            ("teS_aSd_ZXC", "TeSASdZXC", {"preserve_caps": True}),
-            ("teS_aSd_ZXC", "TesAsdZxc", {"preserve_caps": False}),
+            ("teS_aSd_ZXC", "TeSASdZXC", {"preserve_upper": True}),
+            ("teS_aSd_ZXC", "TesAsdZxc", {"preserve_upper": False}),
         ])
 
-    def test_preserve_caps_multiword(self):
+    def test_preserve_upper_multiword(self):
         self._run_tests([
             ("teS_aSd_ZXC qwe_YUG_poI", "TeSASdZXC QweYUGPoI",
-             {"preserve_caps": True}),
+             {"preserve_upper": True}),
             ("teS_aSd_ZXC qwe_YUG_poI", "TesAsdZxc QweYugPoi",
-             {"preserve_caps": False}),
+             {"preserve_upper": False}),
+        ])
+
+    def test_lower_upper_preserve(self):
+        self._run_tests([
+            ("xml_http_request", "xMLhTTPrEQUEST",
+             {"lower_initial": [0, 1, 2],
+              "upper_segments": [0, 1, 2],
+              "preserve_upper": True}),
+            ("xml_http_request", "xMLhTTPrEQUEST",
+             {"lower_initial": [0, 1, 2],
+              "upper_segments": [0, 1, 2],
+              "preserve_upper": False}),
+            ("Xml_Http_Request", "XMLHTTPREQUEST",
+             {"lower_initial": [0, 1, 2],
+              "upper_segments": [0, 1, 2],
+              "preserve_upper": True}),
+            ("Xml_Http_Request", "xMLhTTPrEQUEST",
+             {"lower_initial": [0, 1, 2],
+              "upper_segments": [0, 1, 2],
+              "preserve_upper": False}),
         ])
 
     def test_sep(self):
@@ -367,18 +423,22 @@ class SplitcapsTest(TestCase):
             test = test_data[0]
             expected = test_data[1]
             kwargs = (test_data[2] if len(test_data) > 2 else {})
-            for pre in ("", " ", "  ", "   "):
-                for post in ("", " ", "  ", "   "):
-                    t = pre + test + post
-                    e = list(expected)
-                    if pre and split_initial_whitespace:
-                        e = [pre] + e
-                    else:
-                        e[0] = pre + e[0]
-                    e[-1] = e[-1] + post
-                    actual = splitcaps(t, **kwargs)
-                    self.assertEqual(e, actual)
-                    self.assertEqual(t, "".join(actual))
+            if "pattern" in kwargs or "flags" in kwargs:
+                actual = splitcaps(test, **kwargs)
+                self.assertEqual(expected, actual)
+            else:
+                for pre in ("", " ", "  ", "   "):
+                    for post in ("", " ", "  ", "   "):
+                        t = pre + test + post
+                        e = list(expected)
+                        if pre and split_initial_whitespace:
+                            e = [pre] + e
+                        else:
+                            e[0] = pre + e[0]
+                        e[-1] = e[-1] + post
+                        actual = splitcaps(t, **kwargs)
+                        self.assertEqual(e, actual)
+                        self.assertEqual(t, "".join(actual))
 
     def test_splitcaps_initial_lowercase(self):
         self._run_tests([
@@ -552,7 +612,7 @@ class SplitcapsTest(TestCase):
         ])
 
     def test_pattern(self):
-        tests = [
+        self._run_tests([
             ("asdf test", ["asdf test"], {"pattern": ""}),
             ("asdf test", ["asdf", "test"], {"pattern": "\s+"}),
             ("asdf test ", ["asdf", "test"], {"pattern": "\s+"}),
@@ -572,18 +632,18 @@ class SplitcapsTest(TestCase):
              {"pattern": "(\s|es)"}),
             ("ASDf Test", ["AS", "Df", " ", "T", "es", "t"],
              {"pattern": "(\s)|(es)"}),
-        ]
-        for test_data in tests:
-            test = test_data[0]
-            expected = test_data[1]
-            kwargs = (test_data[2] if len(test_data) > 2 else {})
-            actual = splitcaps(test, **kwargs)
-            self.assertEqual(expected, actual)
+        ])
 
     def test_maxsplit(self):
         self._run_tests([
-            ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa1", "Bb2", "Cc3", "Dd4", "Ee5", "Ff6"],
+            ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa1Bb2Cc3Dd4Ee5Ff6"],
              {"maxsplit": 0}),
+            ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa1", "Bb2", "Cc3", "Dd4", "Ee5", "Ff6"],
+             {"maxsplit": None}),
+            ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa1", "Bb2", "Cc3", "Dd4", "Ee5", "Ff6"],
+             {"maxsplit": -1}),
+            ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa1", "Bb2", "Cc3", "Dd4", "Ee5", "Ff6"],
+             {"maxsplit": -2}),
             ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa1", "Bb2", "Cc3", "Dd4", "Ee5", "Ff6"],
              {"maxsplit": 10}),
             ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa1", "Bb2", "Cc3", "Dd4", "Ee5", "Ff6"],
@@ -596,24 +656,86 @@ class SplitcapsTest(TestCase):
              {"maxsplit": 2}),
             ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa1", "Bb2Cc3Dd4Ee5Ff6"],
              {"maxsplit": 1}),
-            ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa1", "Bb2", "Cc3", "Dd4", "Ee5", "Ff6"],
-             {"maxsplit": -1}),
+        ])
+
+    def test_maxsplit_pattern(self):
+        self._run_tests([
+            ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa1Bb2Cc3Dd4Ee5Ff6"],
+             {"maxsplit": 0, "pattern": "\d+"}),
+            ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa", "Bb", "Cc", "Dd", "Ee", "Ff"],
+             {"maxsplit": None, "pattern": "\d+"}),
+            ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa", "Bb", "Cc", "Dd", "Ee", "Ff"],
+             {"maxsplit": -1, "pattern": "\d+"}),
+            ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa", "Bb", "Cc", "Dd", "Ee", "Ff"],
+             {"maxsplit": -2, "pattern": "\d+"}),
+            ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa", "Bb", "Cc", "Dd", "Ee", "Ff"],
+             {"maxsplit": 12, "pattern": "\d+"}),
+            ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa", "Bb", "Cc", "Dd", "Ee", "Ff"],
+             {"maxsplit": 11, "pattern": "\d+"}),
+            ("aa1Bb2Cc3Dd4Ee5Ff6", ["aa", "Bb", "Cc", "Dd", "Ee", "Ff"],
+             {"maxsplit": 10, "pattern": "\d+"}),
+            ("Aa1Bb2Cc3Dd4Ee5Ff6", ['Aa', 'Bb', 'Cc', 'Dd', 'Ee', 'Ff6'],
+             {"maxsplit": 5, "pattern": "\d+"}),
+            ("aa1Bb2Cc3Dd4Ee5Ff6", ['aa', 'Bb', 'Cc', 'Dd', 'Ee5Ff6'],
+             {"maxsplit": 4, "pattern": "\d+"}),
+            ("Aa1Bb2Cc3Dd4Ee5Ff6", ['Aa', 'Bb', 'Cc', 'Dd4Ee5Ff6'],
+             {"maxsplit": 3, "pattern": "\d+"}),
+            ("aa1Bb2Cc3Dd4Ee5Ff6", ['aa', 'Bb', 'Cc3Dd4Ee5Ff6'],
+             {"maxsplit": 2, "pattern": "\d+"}),
+            ("Aa1Bb2Cc3Dd4Ee5Ff6", ["Aa", "Bb2Cc3Dd4Ee5Ff6"],
+             {"maxsplit": 1, "pattern": "\d+"})
+        ])
+
+    def test_maxsplit_pattern_group(self):
+        self._run_tests([
+            ("aa1Bb2Cc3Dd4Ee5", ["aa1Bb2Cc3Dd4Ee5"],
+             {"maxsplit": 0, "pattern": "(\d+)"}),
+            ("aa1Bb2Cc3Dd4Ee5",
+             ["aa", "1", "Bb", "2", "Cc", "3", "Dd", "4", "Ee", "5"],
+             {"maxsplit": None, "pattern": "(\d+)"}),
+            ("aa1Bb2Cc3Dd4Ee5",
+             ["aa", "1", "Bb", "2", "Cc", "3", "Dd", "4", "Ee", "5"],
+             {"maxsplit": -1, "pattern": "(\d+)"}),
+            ("aa1Bb2Cc3Dd4Ee5",
+             ["aa", "1", "Bb", "2", "Cc", "3", "Dd", "4", "Ee", "5"],
+             {"maxsplit": -2, "pattern": "(\d+)"}),
+            ("aa1Bb2Cc3Dd4Ee5",
+             ["aa", "1", "Bb", "2", "Cc", "3", "Dd", "4", "Ee", "5"],
+             {"maxsplit": 10, "pattern": "(\d+)"}),
+            ("aa1Bb2Cc3Dd4Ee5", ["aa", "1", "Bb", "2", "Cc", "3Dd4Ee5"],
+             {"maxsplit": 5, "pattern": "(\d+)"}),
+            ("aa1Bb2Cc3Dd4Ee5", ["aa", "1", "Bb", "2", "Cc3Dd4Ee5"],
+             {"maxsplit": 4, "pattern": "(\d+)"}),
+            ("aa1Bb2Cc3Dd4Ee5", ["aa", "1", "Bb", "2Cc3Dd4Ee5"],
+             {"maxsplit": 3, "pattern": "(\d+)"}),
+            ("aa1Bb2Cc3Dd4Ee5", ["aa", "1", "Bb2Cc3Dd4Ee5"],
+             {"maxsplit": 2, "pattern": "(\d+)"}),
+            ("aa1Bb2Cc3Dd4Ee5", ["aa", "1Bb2Cc3Dd4Ee5"],
+             {"maxsplit": 1, "pattern": "(\d+)"}),
+        ])
+
+    def test_maxsplit_pattern_partial_group(self):
+        self._run_tests([
+            ("aa1_0Bb2_0Cc3_0Dd4_0",
+             ["aa", "1", "0", "Bb", "2", "0", "Cc", "3", "0", "Dd", "4", "0"],
+             {"pattern": "(\d)_(\d)"}),
+            ("aa1_0Bb2_0Cc3_0Dd4_0",
+             ["aa1_0", "Bb2_0", "Cc3_0", "Dd4_0"],
+             {"pattern": "_(\d)_"}),
+            ("aa1_0Bb2_0Cc3_0Dd4_0",
+             ["aa", "_", "Bb", "_", "Cc", "_", "Dd", "_"],
+             {"pattern": "\d(_)\d"}),
         ])
 
     def test_flags(self):
-        tests = [
-            ("ASDf test", ["AS", "Df test"],
-             {"flags": 0}),
-            ("ASDf Test", ["ASDf ", "Test"],
-             {"flags": re.IGNORECASE}),
-            ("ASDf test", ["AS", "Df", "test"],
-             {"pattern": "\s", "flags": 0}),
-            ("ASDf Test", ["ASDf", "Test"],
-             {"pattern": "\s", "flags": re.IGNORECASE}),
-        ]
-        for test_data in tests:
-            test = test_data[0]
-            expected = test_data[1]
-            kwargs = (test_data[2] if len(test_data) > 2 else {})
-            actual = splitcaps(test, **kwargs)
-            self.assertEqual(expected, actual)
+        self._run_tests([
+            ("ASDf test", ["AS", "Df test"], {"flags": 0}),
+            ("ASDf test", ["AS", "Df test"], {"flags": re.IGNORECASE}),
+            ("ASDf test", ["f test"], {"pattern": "[A-Z]", "flags": 0}),
+            ("ASDf test", ["A", "S", "D", "f test"],
+             {"pattern": "([A-Z])", "flags": 0}),
+            ("ASDf test", [" "],
+             {"pattern": "[A-Z]", "flags": re.IGNORECASE}),
+            ("ASDf test", ["A", "S", "D", "f", " ", "t", "e", "s", "t"],
+             {"pattern": "([A-Z])", "flags": re.IGNORECASE}),
+        ])

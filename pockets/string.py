@@ -28,66 +28,117 @@ _uncamel_re = re.compile(
     "[A-Z][^A-Z\s]*?[a-z]+[^A-Z\s]*"  # Capitalized word
     ")", _re_flags)
 
-_splitcaps_template = (
+_splitcaps_re = re.compile(
     # Clause 1
-    "{0}"  # Leading instances of supplied pattern separator
+    "[A-Z]+[^a-z]*"  # All non-lowercase beginning with a capital letter
+    "(?=[A-Z][^A-Z]*?[a-z]|$)"  # Followed by a capitalized word
+    "|"
     # Clause 2
-    "[A-Z]+[^a-z{2}]*"  # All non-lowercase beginning with a capital letter
-    "(?=[A-Z][^A-Z{2}]*?[a-z]|{1}$)"  # Followed by a capitalized word
+    "[A-Z][^A-Z]*?[a-z]+[^A-Z]*"  # Capitalized word
     "|"
     # Clause 3
-    "[A-Z][^A-Z{2}]*?[a-z]+[^A-Z{2}]*"  # Capitalized word
-    "|"
-    # Clause 4
-    "[^A-Z{2}]+")  # All non-uppercase
-
-_splitcaps_pattern = _splitcaps_template.format("({0})|", "{0}|", "{0}")
-_splitcaps_re = re.compile(_splitcaps_template.format("", "", ""), _re_flags)
+    "[^A-Z]+",  # All non-uppercase
+    _re_flags)
 
 
-def camel(s, sep="_", cap_initial=True, cap_segments=None,
-          preserve_caps=True):
+def camel(s, sep="_", lower_initial=False, upper_segments=None,
+          preserve_upper=False):
     """Converts underscore_separated string (aka snake_case) to CamelCase.
 
+    Works on full sentences as well as individual words:
+
+    >>> camel("hello_world!")
+    'HelloWorld!'
+    >>> camel("Totally works as_expected, even_with_whitespace!")
+    'Totally Works AsExpected, EvenWithWhitespace!'
+
     Args:
-        sep (string, optional): Defaults to "_".
-        cap_initial (bool, optional): Defaults to True.
-        cap_segments (int or list, optional): Defaults to None.
-        preserve_caps (bool): Defaults to True.
+        sep (string, optional): Delineates segments of `s` that will be
+            CamelCased. Defaults to an underscore "_".
+
+            If you want to CamelCase a dash ("-") separated word:
+
+            >>> camel("xml-http-request", sep="-")
+            'XmlHttpRequest'
+
+        lower_initial (bool, int, or list, optional): If True, the initial
+            character of each camelCased word will be lowercase. If False, the
+            initial character of each CamelCased word will be uppercase.
+            Defaults to False:
+
+            >>> camel("http_request http_response")
+            'HttpRequest HttpResponse'
+            >>> camel("http_request http_response", lower_initial=True)
+            'httpRequest httpResponse'
+
+            Optionally, `lower_initial` can be an int or a list of ints,
+            indicating which individual segments of each CamelCased word
+            should start with a lowercase. Supports negative numbers to index
+            segments from the right:
+
+            >>> camel("xml_http_request", lower_initial=0)
+            'xmlHttpRequest'
+            >>> camel("xml_http_request", lower_initial=-1)
+            'XmlHttprequest'
+            >>> camel("xml_http_request", lower_initial=[0, 1])
+            'xmlhttpRequest'
+
+        upper_segments (int or list, optional): Indicates which segments of
+           CamelCased words should be fully uppercased, instead of just
+           capitalizing the first letter.
+
+           Can be an int, indicating a single segment, or a list of ints,
+           indicating multiple segments. Supports negative numbers to index
+           segments from the right.
+
+           `upper_segments` is helpful when dealing with acronyms:
+
+            >>> camel("tcp_socket_id", upper_segments=0)
+            'TCPSocketId'
+            >>> camel("tcp_socket_id", upper_segments=[0, -1])
+            'TCPSocketID'
+            >>> camel("tcp_socket_id", upper_segments=[0, -1], lower_initial=1)
+            'TCPsocketID'
+
+        preserve_upper (bool): If True, existing uppercase characters will
+            not be automatically lowercased. Defaults to False.
+
+            >>> camel("xml_HTTP_reQuest")
+            'XmlHttpRequest'
+            >>> camel("xml_HTTP_reQuest", preserve_upper=True)
+            'XmlHTTPReQuest'
 
     Returns:
-        str: Camelized string.
-
-    Example:
-        >>> camel("xml_http_request")
-        'XmlHttpRequest'
-        >>> camel("xml_http_request", cap_segments=1)
-        'XmlHTTPRequest'
-        >>> camel("xml_http_request", cap_segments=[0, -1])
-        'XMLHttpREQUEST'
-        >>> camel("xml_http_request", cap_initial=False, cap_segments=1)
-        'xmlHTTPRequest'
+        str: CamelCased version of `s`.
 
     """
-    cap_segments = listify(cap_segments)
+    if isinstance(lower_initial, bool):
+        lower_initial = [0] if lower_initial else []
+    else:
+        lower_initial = listify(lower_initial)
+    upper_segments = listify(upper_segments)
     result = []
     for word in _whitespace_group_re.split(s):
         segments = [segment for segment in word.split(sep) if segment]
         count = len(segments)
         for i, segment in enumerate(segments):
-            if i in cap_segments or (i - count) in cap_segments:
-                result.append(segment.upper())
-            elif not cap_initial and i == 0:
-                if preserve_caps:
-                    result.append(segment)
+            upper = i in upper_segments or (i - count) in upper_segments
+            lower = i in lower_initial or (i - count) in lower_initial
+            if upper and lower:
+                if preserve_upper:
+                    segment = segment[0] + segment[1:].upper()
                 else:
-                    result.append(segment.lower())
+                    segment = segment[0].lower() + segment[1:].upper()
+            elif upper:
+                segment = segment.upper()
+            elif lower:
+                if not preserve_upper:
+                    segment = segment.lower()
+            elif preserve_upper:
+                segment = segment[0].upper() + segment[1:]
             else:
-                if preserve_caps:
-                    result.append(segment[0].upper())
-                    result.append(segment[1:])
-                else:
-                    result.append(segment.title())
+                segment = segment[0].upper() + segment[1:].lower()
+            result.append(segment)
 
     return "".join(result)
 
@@ -95,24 +146,68 @@ def camel(s, sep="_", cap_initial=True, cap_segments=None,
 def uncamel(s, sep="_"):
     """Convert CamelCase string to underscore_separated (aka snake_case).
 
+    A CamelCase word is considered to be any uppercase letter followed by zero
+    or more lowercase letters. Contiguous groups of uppercase letters, like
+    you would find in an acronym, are also considered part of a single word:
+
+    >>> uncamel("Request")
+    'request'
+    >>> uncamel("HTTP")
+    'http'
+    >>> uncamel("HTTPRequest")
+    'http_request'
+    >>> uncamel("xmlHTTPRequest")
+    'xml_http_request'
+
+    Works on full sentences as well as individual words:
+
+    >>> uncamel("HelloWorld!")
+    'hello_world!'
+    >>> uncamel("Totally works AsExpected, EvenWithWhitespace!")
+    'totally works as_expected, even_with_whitespace!'
+
     Args:
-        sep (str, optional): Defaults to "_".
+        sep (str, optional): String used to separate CamelCase words. Defaults
+            to an underscore "_".
+
+            If you want dash ("-") separated words:
+
+            >>> uncamel("XmlHttpRequest", sep="-")
+            'xml-http-request'
 
     Returns:
-        str: Uncamelized string.
-
-    Example:
-        >>> uncamel("XmlHTTPRequest")
-        'xml_http_request'
-        >>> uncamel("XmlHTTPRequest", sep="-")
-        'xml-http-request'
+        str: uncamel_cased version of `s`.
 
     """
-    return _uncamel_re.sub(sep + r'\1', s).lower()
+    return _uncamel_re.sub(r'{0}\1'.format(sep), s).lower()
 
 
-def splitcaps(s, pattern=None, maxsplit=0, flags=0):
-    """Intelligently split a string on capital letters.
+def splitcaps(s, pattern=None, maxsplit=None, flags=0):
+    """Intelligently split a string on capitalized words.
+
+    A capitalized word is considered to be any uppercase letter followed by
+    zero or more lowercase letters. Contiguous groups of uppercase letters,
+    like you would find in an acronym, are also considered part of a single
+    word:
+
+    >>> splitcaps("Request")
+    ['Request']
+    >>> splitcaps("HTTP")
+    ['HTTP']
+    >>> splitcaps("HTTPRequest")
+    ['HTTP', 'Request']
+    >>> splitcaps("HTTP/1.1Request")
+    ['HTTP/1.1', 'Request']
+    >>> splitcaps("xmlHTTPRequest")
+    ['xml', 'HTTP', 'Request']
+
+    If no capitalized words are found in `s`, the whole string is
+    returned in a single element list:
+
+    >>> splitcaps("")
+    ['']
+    >>> splitcaps("lower case words")
+    ['lower case words']
 
     Args:
         s (str): The string to split.
@@ -122,36 +217,57 @@ def splitcaps(s, pattern=None, maxsplit=0, flags=0):
             also returned as part of the resulting list. Defaults to None.
 
             splitcaps does not split on whitespace by default. If you want to
-            also split on whitespace, pass "\\s+" for `pattern`:
+            also split on whitespace, pass "\\\s+" for `pattern`:
 
-                >>> splitcaps("Without whiteSpace pattern")
-                ['Without white', 'Space pattern']
-                >>> splitcaps("With whiteSpace pattern", pattern="\s+")
-                ['With', 'white', 'Space', 'pattern']
+            >>> splitcaps("Without whiteSpace pattern")
+            ['Without white', 'Space pattern']
+            >>> splitcaps("With whiteSpace pattern", pattern="\s+")
+            ['With', 'white', 'Space', 'pattern']
+            >>> splitcaps("With whiteSpace group", pattern="(\s+)")
+            ['With', ' ', 'white', 'Space', ' ', 'group']
 
-        maxsplit (int, optional): The maximum number of splits to make.
-        flags (int, optional): Flags to pass to the regular expression
+        maxsplit (int, optional):  If maxsplit is not specified or -1, then
+            there is no limit on the number of splits (all possible splits are
+            made). If maxsplit is >= 0, at most maxsplit splits occur, and the
+            remainder of the string is returned as the final element of the
+            list.
+        flags (int, optional): Flags to pass to the regular expression created
+            using `pattern`. Ignored if `pattern` is not specified.
 
     Returns:
         list: Capitalized substrings.
 
     """
-    if pattern:
-        if flags:
-            r = re.compile(_splitcaps_pattern.format(pattern), flags)
+    if not maxsplit:
+        if maxsplit == 0:
+            return [s]
         else:
-            r = re.compile(_splitcaps_pattern.format(pattern), _re_flags)
-    elif flags:
-        r = re.compile(_splitcaps_re.pattern, flags)
+            maxsplit = -1
+
+    if pattern:
+        pattern_re = re.compile(pattern, flags or _re_flags)
     else:
-        r = _splitcaps_re
+        pattern_re = None
 
     result = []
-    for m in r.finditer(s):
-        if len(m.groups()) != 1 or m.group(1) is None:
+    post_maxsplit = []
+    for m in _splitcaps_re.finditer(s):
+        if pattern_re:
+            for segment in pattern_re.split(m.group()):
+                if segment:
+                    if maxsplit > 0 and len(result) >= maxsplit:
+                        post_maxsplit.append(segment)
+                    else:
+                        result.append(segment)
+        else:
             result.append(m.group())
+
         if maxsplit > 0 and len(result) >= maxsplit:
             if m.end() < len(s):
-                result.append(s[m.end():])
+                post_maxsplit.append(s[m.end():])
+            post_maxsplit = ''.join(post_maxsplit)
+            if post_maxsplit:
+                result.append(post_maxsplit)
             break
-    return result or [s]
+
+    return result if len(result) > 0 else [s]
