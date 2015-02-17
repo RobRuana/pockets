@@ -194,6 +194,13 @@ class ListifyTest(BaseCollectionTestCase):
         x.append("b")
         self.assertEqual(x, y)
 
+        x = sublist("a")
+        y = listify(x, cls=list)
+        self.assertEqual(x, y)
+        self.assertTrue(x is y)
+        x.append("b")
+        self.assertEqual(x, y)
+
     def test_dict(self):
         self.assertEqual([{}], listify({}))
         self.assertEqual([{"a": "A"}], listify({"a": "A"}))
@@ -287,6 +294,13 @@ class MappifyTest(BaseCollectionTestCase):
 
         x = subdict(a="B")
         y = mappify(x)
+        self.assertEqual(x, y)
+        self.assertTrue(x is y)
+        x["a"] = "B"
+        self.assertEqual(x, y)
+
+        x = subdict(a="B")
+        y = mappify(x, cls=dict)
         self.assertEqual(x, y)
         self.assertTrue(x is y)
         x["a"] = "B"

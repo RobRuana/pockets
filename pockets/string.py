@@ -43,7 +43,7 @@ _splitcaps_re = re.compile(
 
 def camel(s, sep="_", lower_initial=False, upper_segments=None,
           preserve_upper=False):
-    """Converts underscore_separated string (aka snake_case) to CamelCase.
+    """Convert underscore_separated string (aka snake_case) to CamelCase.
 
     Works on full sentences as well as individual words:
 
@@ -56,7 +56,7 @@ def camel(s, sep="_", lower_initial=False, upper_segments=None,
         sep (string, optional): Delineates segments of `s` that will be
             CamelCased. Defaults to an underscore "_".
 
-            If you want to CamelCase a dash ("-") separated word:
+            For example, if you want to CamelCase a dash separated word:
 
             >>> camel("xml-http-request", sep="-")
             'XmlHttpRequest'
@@ -147,8 +147,8 @@ def uncamel(s, sep="_"):
     """Convert CamelCase string to underscore_separated (aka snake_case).
 
     A CamelCase word is considered to be any uppercase letter followed by zero
-    or more lowercase letters. Contiguous groups of uppercase letters, like
-    you would find in an acronym, are also considered part of a single word:
+    or more lowercase letters. Contiguous groups of uppercase letters – like
+    you would find in an acronym – are also considered part of a single word:
 
     >>> uncamel("Request")
     'request'
@@ -170,7 +170,7 @@ def uncamel(s, sep="_"):
         sep (str, optional): String used to separate CamelCase words. Defaults
             to an underscore "_".
 
-            If you want dash ("-") separated words:
+            For example, if you want dash separated words:
 
             >>> uncamel("XmlHttpRequest", sep="-")
             'xml-http-request'
@@ -186,8 +186,8 @@ def splitcaps(s, pattern=None, maxsplit=None, flags=0):
     """Intelligently split a string on capitalized words.
 
     A capitalized word is considered to be any uppercase letter followed by
-    zero or more lowercase letters. Contiguous groups of uppercase letters,
-    like you would find in an acronym, are also considered part of a single
+    zero or more lowercase letters. Contiguous groups of uppercase letters –
+    like you would find in an acronym – are also considered part of a single
     word:
 
     >>> splitcaps("Request")
@@ -209,33 +209,34 @@ def splitcaps(s, pattern=None, maxsplit=None, flags=0):
     >>> splitcaps("lower case words")
     ['lower case words']
 
+    Does not split on whitespace by default. To also split
+    on whitespace, pass "\\\s+" for `pattern`:
+
+    >>> splitcaps("Without whiteSpace pattern")
+    ['Without white', 'Space pattern']
+    >>> splitcaps("With whiteSpace pattern", pattern="\s+")
+    ['With', 'white', 'Space', 'pattern']
+    >>> splitcaps("With whiteSpace group", pattern="(\s+)")
+    ['With', ' ', 'white', 'Space', ' ', 'group']
+
     Args:
         s (str): The string to split.
         pattern (str, optional): In addition to splitting on capital letters,
-            also split by the occurrences of pattern. If capturing parentheses
-            are used in pattern, then the text of all groups in the pattern are
-            also returned as part of the resulting list. Defaults to None.
-
-            splitcaps does not split on whitespace by default. If you want to
-            also split on whitespace, pass "\\\s+" for `pattern`:
-
-            >>> splitcaps("Without whiteSpace pattern")
-            ['Without white', 'Space pattern']
-            >>> splitcaps("With whiteSpace pattern", pattern="\s+")
-            ['With', 'white', 'Space', 'pattern']
-            >>> splitcaps("With whiteSpace group", pattern="(\s+)")
-            ['With', ' ', 'white', 'Space', ' ', 'group']
-
+            also split by the occurrences of `pattern`. If capturing
+            parentheses are used in `pattern`, then the text of all groups in
+            `pattern` are also returned as part of the resulting list.
+            Defaults to None.
         maxsplit (int, optional):  If maxsplit is not specified or -1, then
             there is no limit on the number of splits (all possible splits are
             made). If maxsplit is >= 0, at most maxsplit splits occur, and the
             remainder of the string is returned as the final element of the
             list.
         flags (int, optional): Flags to pass to the regular expression created
-            using `pattern`. Ignored if `pattern` is not specified.
+            using `pattern`. Ignored if `pattern` is not specified. Defaults
+            to (re.LOCALE | re.MULTILINE | re.UNICODE).
 
     Returns:
-        list: Capitalized substrings.
+        list: List of capitalized substrings in `s`.
 
     """
     if not maxsplit:
