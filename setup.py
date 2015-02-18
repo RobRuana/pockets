@@ -7,6 +7,7 @@
 import os
 from setuptools import setup, find_packages
 
+
 # Package versioning solution originally found here:
 # http://stackoverflow.com/q/458550
 exec(open(os.path.join('pockets', '_version.py')).read())
@@ -40,6 +41,5 @@ setup(
     platforms='any',
     packages=find_packages(),
     install_requires=reqs,
-    tests_require=test_reqs,
-    test_suite='nose.collector',
+    tests_require=test_reqs
 )
