@@ -66,6 +66,23 @@ class TestResolve(TestCase):
                         ["pockets.iterators", "pockets"]) is
                         pockets.iterators.peek_iter)
 
+    def test_leading_dots(self):
+        dt = __import__("datetime")
+        self.assertTrue(resolve(".datetime") is dt)
+        self.assertTrue(resolve("..datetime") is dt)
+        self.assertTrue(resolve(".datetime", "datetime") is dt.datetime)
+        self.assertTrue(resolve("..datetime", "datetime") is dt.datetime)
+        self.assertTrue(resolve(".iterators", "pockets") is pockets.iterators)
+        self.assertTrue(resolve("..iterators", "pockets") is pockets.iterators)
+        self.assertTrue(resolve(".peek_iter", "pockets.iterators") is
+                        pockets.iterators.peek_iter)
+        self.assertTrue(resolve("..peek_iter", "pockets.iterators") is
+                        pockets.iterators.peek_iter)
+        self.assertTrue(resolve(".iterators.peek_iter", "pockets") is
+                        pockets.iterators.peek_iter)
+        self.assertTrue(resolve("..iterators.peek_iter", "pockets") is
+                        pockets.iterators.peek_iter)
+
     def test_raises(self):
         self.assertRaises(ValueError, resolve, "NOTFOUND")
         self.assertRaises(ValueError, resolve, "pockets.NOTFOUND")
