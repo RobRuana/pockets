@@ -1,10 +1,8 @@
-.. pockets documentation master file
+.. include:: ../../README.rst
+   :end-before: Build Status
 
-A collection of helpful Python tools!
-=====================================
-
-*Let me check my pockets...*
-----------------------------
+Package Contents
+----------------
 
 .. toctree::
    :maxdepth: 2

@@ -2,7 +2,7 @@
 # Copyright (c) 2015, by the Pockets team, see AUTHORS.
 # Licensed under the BSD License, see LICENSE for details.
 
-"""A collection of helpful collection tools!"""
+"""A pocket full of useful collection functions!"""
 
 from __future__ import absolute_import
 from collections import Sized, Iterable, Mapping
@@ -16,7 +16,7 @@ __all__ = ["is_listy", "listify", "mappify"]
 def is_listy(x):
     """Return True if `x` is "listy", i.e. a list-like object.
 
-    "Listy" is defined as a sized iterable which is neither a map or string:
+    "Listy" is defined as a sized iterable which is neither a map nor a string:
 
     >>> is_listy(["a", "b"])
     True

@@ -2,7 +2,7 @@
 # Copyright (c) 2015, by the Pockets team, see AUTHORS.
 # Licensed under the BSD License, see LICENSE for details.
 
-"""A collection of helpful string manipulation tools!"""
+"""A pocket full of useful string manipulation functions!"""
 
 from __future__ import absolute_import
 import re

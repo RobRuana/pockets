@@ -2,7 +2,7 @@
 # Copyright (c) 2015, by the Pockets team, see AUTHORS.
 # Licensed under the BSD License, see LICENSE for details.
 
-"""A collection of helpful iterators!"""
+"""A pocket full of useful iterators!"""
 
 from __future__ import absolute_import
 import collections
