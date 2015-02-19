@@ -1,6 +1,6 @@
 six>=1.7
 Sphinx==1.2.3
-sphinxcontrib-napoleon>=0.2.11
+sphinxcontrib-napoleon>=0.3.1
 coverage>=3.7.1
 flake8>=2.3.0
 pytest>=2.6.4
