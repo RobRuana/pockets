@@ -2,10 +2,10 @@
 
 This file describes user-visible changes between pockets versions.
 
-UNRELEASED
-----------
+Version 0.2.1 (2015-02-19)
+--------------------------
 
- * Add your changes here!
+ * Minimum required six version changed to 1.7
 
 
 Version 0.2 (2015-02-19)
