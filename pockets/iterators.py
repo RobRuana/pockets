@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015 Rob Ruana
-# Licensed under the BSD License, see LICENSE file for details.
+# Copyright (c) 2015, by the Pockets team, see AUTHORS.
+# Licensed under the BSD License, see LICENSE for details.
 
 """A collection of helpful iterators!"""
 

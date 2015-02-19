@@ -2,6 +2,14 @@
 
 This file describes user-visible changes between pockets versions.
 
+UNRELEASED
+----------
+
+ * Adds collections module
+ * Adds inspect module
+ * Adds string module
+
+
 Version 0.1 (2015-02-10)
 ------------------------
 
