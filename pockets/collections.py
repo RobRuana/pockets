@@ -22,10 +22,16 @@ def is_listy(x):
     True
     >>> is_listy(set())
     True
+    >>> is_listy(iter(["a", "b"]))
+    False
     >>> is_listy({"a": "b"})
     False
     >>> is_listy("a regular string")
     False
+
+    Note:
+        Iterables and generators fail the "listy" test because they
+        are not sized.
 
     Args:
         x (any value): The object to test.
@@ -59,6 +65,7 @@ def listify(x, minlen=0, default=None, cls=None):
 
     Args:
         x (any value): Value to listify.
+
         minlen (int): Minimum length of the returned list. If the returned
             list would be shorter than `minlen` it is padded with values from
             `default`. Defaults to 0.
@@ -125,8 +132,10 @@ def mappify(x, default=True, cls=None):
 
     Args:
         x (str, map, or iterable): Value to mappify.
+
         default (any value): Value used to fill out missing values of the
             returned dict.
+
         cls (class or callable): Instead of wrapping `x` in a dict, wrap it
             in an instance of `cls`. `cls` should accept a map object as
             its single parameter when called:

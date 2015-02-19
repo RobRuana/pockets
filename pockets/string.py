@@ -221,16 +221,19 @@ def splitcaps(s, pattern=None, maxsplit=None, flags=0):
 
     Args:
         s (str): The string to split.
+
         pattern (str, optional): In addition to splitting on capital letters,
             also split by the occurrences of `pattern`. If capturing
             parentheses are used in `pattern`, then the text of all groups in
             `pattern` are also returned as part of the resulting list.
             Defaults to None.
+
         maxsplit (int, optional):  If maxsplit is not specified or -1, then
             there is no limit on the number of splits (all possible splits are
             made). If maxsplit is >= 0, at most maxsplit splits occur, and the
             remainder of the string is returned as the final element of the
             list.
+
         flags (int, optional): Flags to pass to the regular expression created
             using `pattern`. Ignored if `pattern` is not specified. Defaults
             to (re.LOCALE | re.MULTILINE | re.UNICODE).
