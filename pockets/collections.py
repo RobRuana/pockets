@@ -53,6 +53,10 @@ def listify(x, minlen=0, default=None, cls=None):
     >>> listify({'a': 'A'})
     [{'a': 'A'}]
 
+    Note:
+        Not guaranteed to return a copy of `x`. If `x` is already a list and
+        `cls` is not specified, then `x` itself is returned.
+
     Args:
         x (any value): Value to listify.
         minlen (int): Minimum length of the returned list. If the returned
@@ -85,10 +89,6 @@ def listify(x, minlen=0, default=None, cls=None):
     Returns:
         list or `cls`: A listified version of `x`.
 
-    Note:
-        Not guaranteed to return a copy of `x`. If `x` is already a list and
-        `cls` is not specified, then `x` itself is returned.
-
     """
     if x is None:
         x = []
@@ -119,6 +119,10 @@ def mappify(x, default=True, cls=None):
     >>> mappify({'a': "A"})
     {'a': 'A'}
 
+    Note:
+        Not guaranteed to return a copy of `x`. If `x` is already a map and
+        `cls` is not specified, then `x` itself is returned.
+
     Args:
         x (str, map, or iterable): Value to mappify.
         default (any value): Value used to fill out missing values of the
@@ -136,10 +140,6 @@ def mappify(x, default=True, cls=None):
 
     Raises:
         TypeError: If `x` is not a map, iterable, or string.
-
-    Note:
-        Not guaranteed to return a copy of `x`. If `x` is already a map and
-        `cls` is not specified, then `x` itself is returned.
 
     """
     if not isinstance(x, Mapping):
