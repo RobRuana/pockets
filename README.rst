@@ -4,8 +4,8 @@ Pockets full of useful Python tools!
 *Let me check my pockets...*
 ----------------------------
 
-The Pockets library is an attempt to pull together all the helper functions
-I've found useful over the years.
+The Pockets library pulls together all the Python helper functions I've found
+useful over the years.
 
 If you've worked on a project that exports an API and accesses a data store,
 you've probably seen some code that looks like this::
