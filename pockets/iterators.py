@@ -15,6 +15,14 @@ __all__ = ["peek_iter", "modify_iter"]
 class peek_iter(object):
     """An iterator object that supports peeking ahead.
 
+    >>> p = peek_iter(["a", "b", "c", "d", "e"])
+    >>> p.peek()
+    'a'
+    >>> p.next()
+    'a'
+    >>> p.peek(3)
+    ['b', 'c', 'd']
+
     Args:
         o (iterable or callable): `o` is interpreted very differently
             depending on the presence of `sentinel`.
@@ -167,6 +175,20 @@ class peek_iter(object):
 class modify_iter(peek_iter):
     """An iterator object that supports modifying items as they are returned.
 
+    >>> a = ["     A list    ",
+    ...      "   of strings  ",
+    ...      "      with     ",
+    ...      "      extra    ",
+    ...      "   whitespace. "]
+    >>> modifier = lambda s: s.strip().replace('with', 'without')
+    >>> for s in modify_iter(a, modifier=modifier):
+    ...   print('"%s"' % s)
+    "A list"
+    "of strings"
+    "without"
+    "extra"
+    "whitespace."
+
     Args:
         o (iterable or callable): `o` is interpreted very differently
             depending on the presence of `sentinel`.
@@ -189,21 +211,6 @@ class modify_iter(peek_iter):
 
             If `sentinel` is not given, `modifier` must be passed as a keyword
             argument.
-
-    Example:
-        >>> a = ["     A list    ",
-        ...      "   of strings  ",
-        ...      "      with     ",
-        ...      "      extra    ",
-        ...      "   whitespace. "]
-        >>> modifier = lambda s: s.strip().replace('with', 'without')
-        >>> for s in modify_iter(a, modifier=modifier):
-        ...   print('"%s"' % s)
-        "A list"
-        "of strings"
-        "without"
-        "extra"
-        "whitespace."
 
     Attributes:
         modifier (callable): `modifier` is called with each item in `o` as it
