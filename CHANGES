@@ -3,6 +3,12 @@
 This file describes user-visible changes between pockets versions.
 
 
+UNRELEASED
+----------
+
+ * Modifies behavior of resolve to allow relative imports
+
+
 Version 0.2.2 (2015-02-19)
 --------------------------
 

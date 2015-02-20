@@ -25,13 +25,26 @@ def resolve(name, modules=None):
     >>> resolve(object()) #doctest: +ELLIPSIS
     <object object at 0x...>
 
-    Leading dots are allowed in `name`, but they are ignored; resolution will
-    never traverse **up** the module path.
-
     If `modules` is specified, then resolution of `name` is restricted
-    to the given modules. If `modules` is not specified, then resolution of
-    `name` is first attempted absolutely, and then relative to the calling
-    function's module:
+    to the given modules. Leading dots are allowed in `name`, but they are
+    ignored. Resolution **will not** traverse up the module path if `modules`
+    is specified.
+
+    If `modules` is not specified and `name` has leading dots, then resolution
+    is first attempted relative to the calling function's module, and then
+    absolutely. Resolution **will** traverse up the module path. If `name` has
+    no leading dots, resolution is first attempted absolutely and then
+    relative to the calling module.
+
+    Warning:
+        Do not resolve strings supplied by an end user without specifying
+        `modules`. Instantiating an arbitrary object specified by an end user
+        can introduce a potential security risk.
+
+        To avoid this, restrict the search path by explicitly specifying
+        `modules`.
+
+    Restricting `name` resolution to a set of `modules`:
 
     >>> resolve("pockets.camel") #doctest: +ELLIPSIS
     <function camel at 0x...>
@@ -57,16 +70,27 @@ def resolve(name, modules=None):
         return name
 
     obj_path = name.split('.')
-    while not obj_path[0]:
-        obj_path.pop(0)
     search_paths = []
     if modules:
+        while not obj_path[0]:
+            obj_path.pop(0)
         for module_path in listify(modules):
             search_paths.append(module_path.split('.') + obj_path)
     else:
-        search_paths.append(obj_path)
         caller = inspect.getouterframes(inspect.currentframe())[1][0].f_globals
-        search_paths.append(caller['__name__'].split('.') + obj_path)
+        module_path = caller['__name__'].split('.')
+        if not obj_path[0]:
+            obj_path.pop(0)
+            while not obj_path[0]:
+                obj_path.pop(0)
+                if module_path:
+                    module_path.pop()
+
+            search_paths.append(module_path + obj_path)
+            search_paths.append(obj_path)
+        else:
+            search_paths.append(obj_path)
+            search_paths.append(module_path + obj_path)
 
     for path in search_paths:
         try:

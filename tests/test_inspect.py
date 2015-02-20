@@ -5,6 +5,7 @@
 """Tests for :mod:`pockets.inspect` module."""
 
 from __future__ import absolute_import
+import sys
 from unittest import TestCase
 
 import pockets
@@ -66,7 +67,7 @@ class TestResolve(TestCase):
                         ["pockets.iterators", "pockets"]) is
                         pockets.iterators.peek_iter)
 
-    def test_leading_dots(self):
+    def test_relative_import(self):
         dt = __import__("datetime")
         self.assertTrue(resolve(".datetime") is dt)
         self.assertTrue(resolve("..datetime") is dt)
@@ -82,6 +83,30 @@ class TestResolve(TestCase):
                         pockets.iterators.peek_iter)
         self.assertTrue(resolve("..iterators.peek_iter", "pockets") is
                         pockets.iterators.peek_iter)
+
+        mod = sys.modules["tests.test_inspect"]
+        mod.MOD_ATTR = "asdf"
+        self.assertEqual(resolve("MOD_ATTR"), "asdf")
+        self.assertEqual(resolve(".MOD_ATTR"), "asdf")
+
+        # Seems odd that this would raise an error, seeing as it worked
+        # fine two lines above. However, resolve uses the *calling* function's
+        # module as the search path, which in this case is unittest
+        self.assertRaises(ValueError, resolve, "MOD_ATTR")
+        self.assertRaises(ValueError, resolve, ".MOD_ATTR")
+
+        re_mod = __import__("re")
+        mod.re = "zxcv"
+        self.assertTrue(resolve("re") is re_mod)
+        self.assertEqual(resolve(".re"), "zxcv")
+        self.assertTrue(resolve("..re") is re_mod)
+        self.assertTrue(resolve("...re") is re_mod)
+        self.assertEqual(resolve("re", "tests.test_inspect"), "zxcv")
+        self.assertEqual(resolve(".re", "tests.test_inspect"), "zxcv")
+        self.assertEqual(resolve("..re", "tests.test_inspect"), "zxcv")
+        self.assertEqual(resolve("test_inspect.re", "tests"), "zxcv")
+        self.assertEqual(resolve(".test_inspect.re", "tests"), "zxcv")
+        self.assertEqual(resolve("..test_inspect.re", "tests"), "zxcv")
 
     def test_raises(self):
         self.assertRaises(ValueError, resolve, "NOTFOUND")
