@@ -6,9 +6,10 @@
 
 from __future__ import absolute_import
 import inspect
+import functools
 
 from pockets.collections import listify
-from six import functools, string_types
+from six import string_types
 
 __all__ = ["resolve"]
 
