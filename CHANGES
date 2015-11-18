@@ -3,6 +3,12 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.3 (2015-11-17)
+------------------------
+
+ * Adds UnicodeMixin to aid Python 2 and 3 compatibility
+
+
 Version 0.2.4 (2015-03-22)
 --------------------------
 

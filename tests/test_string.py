@@ -6,10 +6,30 @@
 
 from __future__ import absolute_import
 import re
+import sys
+
 from unittest import TestCase
 
-from pockets.string import camel, uncamel, splitcaps
+from pockets.string import camel, uncamel, splitcaps, UnicodeMixin
 from six import u
+
+
+class UnicodeMixinTest(TestCase):
+
+    class ClassWithUnicode(UnicodeMixin):
+        def __unicode__(self):
+            if sys.version_info[0] >= 3:
+                return 'ClassWithUnicode'
+            else:
+                return u'ClassWithUnicode'
+
+    def test_unicode(self):
+        obj = UnicodeMixinTest.ClassWithUnicode()
+        self.assertEqual(obj.__unicode__(), u('ClassWithUnicode'))
+
+    def test_str(self):
+        obj = UnicodeMixinTest.ClassWithUnicode()
+        self.assertEqual(obj.__str__(), 'ClassWithUnicode')
 
 
 class UncamelTest(TestCase):

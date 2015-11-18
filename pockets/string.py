@@ -6,6 +6,7 @@
 
 from __future__ import absolute_import
 import re
+import sys
 
 from pockets.collections import listify
 
@@ -275,3 +276,22 @@ def splitcaps(s, pattern=None, maxsplit=None, flags=0):
             break
 
     return result if len(result) > 0 else [s]
+
+
+class UnicodeMixin(object):
+    """Mixin class to define the proper __str__/__unicode__ methods in
+    Python 2 or 3.
+
+    Originally found on the `Porting Python 2 Code to Python 3 HOWTO`_.
+
+    .. _Porting Python 2 Code to Python 3 HOWTO:
+       https://docs.python.org/3.3/howto/pyporting.html
+
+    """
+
+    if sys.version_info[0] >= 3:  # Python 3
+        def __str__(self):
+            return self.__unicode__()
+    else:  # Python 2
+        def __str__(self):
+            return self.__unicode__().encode('utf8')
