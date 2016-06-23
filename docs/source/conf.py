@@ -42,7 +42,8 @@ needs_sphinx = '1.2'
 # ones.
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.doctest',
-              'sphinxcontrib.napoleon']
+              'sphinx.ext.viewcode',
+              'sphinx.ext.napoleon']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -58,7 +59,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pockets'
-copyright = u'2015, Rob Ruana'
+copyright = u'2016, Rob Ruana'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
