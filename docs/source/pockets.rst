@@ -39,6 +39,7 @@ pockets.string module
     :undoc-members:
     :show-inheritance:
 
+
 .. autoclass:: pockets.string.UnicodeMixin
     :members:
     :undoc-members:
