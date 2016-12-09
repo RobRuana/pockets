@@ -3,6 +3,12 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.3.1 (2016-12-09)
+--------------------------
+
+ * Fixes Python 3.6 compatibility by only using re.LOCALE flag on Python 2
+
+
 Version 0.3 (2015-11-17)
 ------------------------
 
