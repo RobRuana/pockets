@@ -6,6 +6,7 @@
 
 from __future__ import absolute_import
 import re
+import six
 import sys
 
 from pockets.collections import listify
@@ -13,7 +14,10 @@ from pockets.collections import listify
 __all__ = ["camel", "uncamel", "splitcaps"]
 
 # Default regular expression flags
-_re_flags = re.L | re.M | re.U
+if six.PY2:
+    _re_flags = re.L | re.M | re.U
+else:
+    _re_flags = re.M | re.U
 
 _whitespace_group_re = re.compile("(\s+)", _re_flags)
 
