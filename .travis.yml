@@ -19,12 +19,12 @@ matrix:
       env: TOX_ENV=pypy
 install:
   - pip install tox
-  - if [[ $TOX_ENV == py36 ]]; then
+  - if [[ $TOX_ENV == py27 ]] || [[ $TOX_ENV == py36 ]]; then
       pip install coveralls;
     fi
 script:
   - tox -e $TOX_ENV
 after_success:
-  - if [[ $TOX_ENV == py36 ]]; then
+  - if [[ $TOX_ENV == py27 ]] || [[ $TOX_ENV == py36 ]]; then
       coveralls;
     fi
