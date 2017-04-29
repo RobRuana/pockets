@@ -32,6 +32,14 @@ compatibility with an external API.
 Pockets is full of highly tested, well maintained functions that help bridge
 the gap. Here are just a few examples...
 
+.. rubric :: Easily get the right logger no matter where you are
+
+::
+
+    >>> from pockets.autolog import log
+    >>> log.error("Always log from the correct module.Class!")
+    mymodule.MyClass: Always log from the correct module.Class!
+
 .. rubric :: Convert underscore_separated string to CamelCase
 
 ::

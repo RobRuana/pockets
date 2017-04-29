@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016 the Pockets team, see AUTHORS.
+# Copyright (c) 2017 the Pockets team, see AUTHORS.
 # Licensed under the BSD License, see LICENSE for details.
 
 """A collection of helpful Python tools!"""
@@ -13,7 +13,6 @@ from setuptools import setup, find_packages
 exec(open(os.path.join('pockets', '_version.py')).read())
 
 reqs = open('requirements.txt', 'r').read().strip().splitlines()
-test_reqs = open('requirements_test.txt', 'r').read().strip().splitlines()
 
 setup(
     name='pockets',
@@ -27,7 +26,7 @@ setup(
     long_description=open('README.rst', 'r').read(),
     zip_safe=True,
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
@@ -40,6 +39,5 @@ setup(
     ],
     platforms='any',
     packages=find_packages(exclude=['tests*']),
-    install_requires=reqs,
-    tests_require=test_reqs
+    install_requires=reqs
 )

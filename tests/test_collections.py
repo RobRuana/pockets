@@ -1,46 +1,87 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016 the Pockets team, see AUTHORS.
+# Copyright (c) 2017 the Pockets team, see AUTHORS.
 # Licensed under the BSD License, see LICENSE for details.
 
 """Tests for :mod:`pockets.collections` module."""
 
 from __future__ import absolute_import
-from collections import defaultdict, deque
-from unittest import TestCase
+from collections import defaultdict, deque, Sequence, Set
 
-from pockets.collections import is_listy, listify, mappify
+import pytest
+import six
 from six import u
+from pockets.collections import is_listy, listify, mappify, uniquify
 
 
-class BaseCollectionTestCase(TestCase):
-    pass
+class TestIsListy(object):
+    def test_sized_builtin(self):
+        sized = [(), (1,), [], [1], set(), set([1]), frozenset(),
+                 frozenset([1]), bytearray(), bytearray(1)]
+        if six.PY2:
+            sized.extend(
+                [xrange(0), xrange(2), buffer(''), buffer('x')])  # noqa: F821
+        for x in sized:
+            assert is_listy(x)
 
+    def test_excluded(self):
+        assert not is_listy({})
+        assert not is_listy(u(''))
+        assert not is_listy('')
+        assert not is_listy(b'')
 
-class IsListyTest(BaseCollectionTestCase):
+    def test_unsized_builtin(self):
+        assert not is_listy(iter([]))
+        assert not is_listy(i for i in range(2))
+
+    def test_user_defined_types(self):
+
+        class AlwaysEmptySequence(Sequence):
+            def __len__(self): return 0
+
+            def __getitem__(self, i): return [][i]
+
+        assert is_listy(AlwaysEmptySequence())
+
+        class AlwaysEmptySet(Set):
+            def __len__(self): return 0
+
+            def __iter__(self): return iter([])
+
+            def __contains__(self, x): return False
+
+        assert is_listy(AlwaysEmptySet())
+
+    def test_miscellaneous(self):
+        class Foo(object):
+            pass
+
+        for x in [0, 1, False, True, Foo, object, object()]:
+            assert not is_listy(x)
+
     def test_none(self):
-        self.assertFalse(is_listy(None))
+        assert not is_listy(None)
 
     def test_set(self):
-        self.assertTrue(is_listy(set()))
-        self.assertTrue(is_listy(set(["a", "b", "c"])))
+        assert is_listy(set())
+        assert is_listy(set(['a', 'b', 'c']))
 
     def test_string(self):
-        self.assertFalse(is_listy(""))
-        self.assertFalse(is_listy("test"))
-        self.assertFalse(is_listy(u("")))
-        self.assertFalse(is_listy(u("test")))
+        assert not is_listy('')
+        assert not is_listy('test')
+        assert not is_listy(u(''))
+        assert not is_listy(u('test'))
 
     def test_tuple(self):
-        self.assertTrue(is_listy(tuple()))
-        self.assertTrue(is_listy(("a", "b", "c")))
+        assert is_listy(tuple())
+        assert is_listy(('a', 'b', 'c'))
 
     def test_list(self):
-        self.assertTrue(is_listy([]))
-        self.assertTrue(is_listy(["a", "b", "c"]))
+        assert is_listy([])
+        assert is_listy(['a', 'b', 'c'])
 
     def test_dict(self):
-        self.assertFalse(is_listy({}))
-        self.assertFalse(is_listy({"a": "A"}))
+        assert not is_listy({})
+        assert not is_listy({'a': 'A'})
 
     def test_ordered_dict(self):
         try:
@@ -48,263 +89,258 @@ class IsListyTest(BaseCollectionTestCase):
         except ImportError:
             pass
         else:
-            self.assertFalse(is_listy(OrderedDict()))
-            self.assertFalse(is_listy(OrderedDict({"a": "A"})))
+            assert not is_listy(OrderedDict())
+            assert not is_listy(OrderedDict({'a': 'A'}))
 
     def test_frozenset(self):
-        self.assertTrue(is_listy(frozenset()))
-        self.assertTrue(is_listy(frozenset(["a", "b", "c"])))
+        assert is_listy(frozenset())
+        assert is_listy(frozenset(['a', 'b', 'c']))
 
     def test_object(self):
-        self.assertFalse(is_listy(object()))
+        assert not is_listy(object())
 
 
-class ListifyTest(BaseCollectionTestCase):
+class TestListify(object):
     def test_default(self):
-        self.assertEqual([], listify([], default=None))
-        self.assertEqual(["a"], listify(["a"], minlen=1, default=None))
-        self.assertEqual(["a", None], listify(["a"], minlen=2, default=None))
-        self.assertEqual(["a", None, None], listify(["a"], minlen=3,
-                         default=None))
+        assert [] == listify([], default=None)
+        assert ['a'] == listify(['a'], minlen=1, default=None)
+        assert ['a', None] == listify(['a'], minlen=2, default=None)
+        assert ['a', None, None] == listify(['a'], minlen=3, default=None)
 
-        self.assertEqual([], listify([], default="XXX"))
-        self.assertEqual(["a"], listify(["a"], minlen=1, default="XXX"))
-        self.assertEqual(["a", "XXX"], listify(["a"], minlen=2,
-                         default="XXX"))
-        self.assertEqual(["a", "XXX", "XXX"], listify(["a"], minlen=3,
-                         default="XXX"))
+        assert [] == listify([], default='XXX')
+        assert ['a'] == listify(['a'], minlen=1, default='XXX')
+        assert ['a', 'XXX'] == listify(['a'], minlen=2, default='XXX')
+        assert ['a', 'XXX', 'XXX'] == listify(['a'], minlen=3, default='XXX')
 
     def test_cls(self):
-        x = ["a"]
+        x = ['a']
         y = listify(x)
-        self.assertEqual(x, y)
-        self.assertTrue(x is y)
-        x.append("b")
-        self.assertEqual(x, y)
+        assert x == y
+        assert x is y
+        x.append('b')
+        assert x == y
 
-        x = ["a"]
+        x = ['a']
         y = listify(x, cls=None)
-        self.assertEqual(x, y)
-        self.assertTrue(x is y)
-        x.append("b")
-        self.assertEqual(x, y)
+        assert x == y
+        assert x is y
+        x.append('b')
+        assert x == y
 
         class sublist(list):
             pass
 
-        x = ["a"]
+        x = ['a']
         y = listify(x, cls=sublist)
-        self.assertEqual(x, y)
-        self.assertFalse(x is y)
-        x.append("b")
-        self.assertNotEqual(x, y)
+        assert x == y
+        assert x is not y
+        x.append('b')
+        assert x != y
 
-        x = ["a"]
+        x = ['a']
         y = listify(x, cls=deque)
-        self.assertEqual(x, list(y))
-        self.assertEqual(len(x), len(y))
-        self.assertFalse(x is y)
-        x.append("b")
-        self.assertNotEqual(x, list(y))
-        self.assertNotEqual(len(x), len(y))
+        assert x == list(y)
+        assert len(x) == len(y)
+        assert x is not y
+        x.append('b')
+        assert x != list(y)
+        assert len(x) != len(y)
 
     def test_minlen(self):
-        self.assertEqual([], listify([]))
-        self.assertEqual([], listify([], minlen=None))
-        self.assertEqual([], listify([], minlen=-1))
-        self.assertEqual([], listify([], minlen=0))
-        self.assertEqual([None], listify([], minlen=1))
-        self.assertEqual([None, None], listify([], minlen=2))
-        self.assertEqual([None, None, None], listify([], minlen=3))
+        assert [] == listify([])
+        assert [] == listify([], minlen=None)
+        assert [] == listify([], minlen=-1)
+        assert [] == listify([], minlen=0)
+        assert [None] == listify([], minlen=1)
+        assert [None, None] == listify([], minlen=2)
+        assert [None, None, None] == listify([], minlen=3)
 
-        self.assertEqual(["a"], listify(["a"]))
-        self.assertEqual(["a"], listify(["a"], minlen=None))
-        self.assertEqual(["a"], listify(["a"], minlen=-1))
-        self.assertEqual(["a"], listify(["a"], minlen=0))
-        self.assertEqual(["a"], listify(["a"], minlen=1))
-        self.assertEqual(["a", None], listify(["a"], minlen=2))
-        self.assertEqual(["a", None, None], listify(["a"], minlen=3))
+        assert ['a'] == listify(['a'])
+        assert ['a'] == listify(['a'], minlen=None)
+        assert ['a'] == listify(['a'], minlen=-1)
+        assert ['a'] == listify(['a'], minlen=0)
+        assert ['a'] == listify(['a'], minlen=1)
+        assert ['a', None] == listify(['a'], minlen=2)
+        assert ['a', None, None] == listify(['a'], minlen=3)
 
-        self.assertEqual(["a", "b"], listify(["a", "b"]))
-        self.assertEqual(["a", "b"], listify(["a", "b"], minlen=None))
-        self.assertEqual(["a", "b"], listify(["a", "b"], minlen=-1))
-        self.assertEqual(["a", "b"], listify(["a", "b"], minlen=0))
-        self.assertEqual(["a", "b"], listify(["a", "b"], minlen=1))
-        self.assertEqual(["a", "b"], listify(["a", "b"], minlen=2))
-        self.assertEqual(["a", "b", None], listify(["a", "b"], minlen=3))
-        self.assertEqual(["a", "b", None, None], listify(["a", "b"], minlen=4))
+        assert ['a', 'b'] == listify(['a', 'b'])
+        assert ['a', 'b'] == listify(['a', 'b'], minlen=None)
+        assert ['a', 'b'] == listify(['a', 'b'], minlen=-1)
+        assert ['a', 'b'] == listify(['a', 'b'], minlen=0)
+        assert ['a', 'b'] == listify(['a', 'b'], minlen=1)
+        assert ['a', 'b'] == listify(['a', 'b'], minlen=2)
+        assert ['a', 'b', None] == listify(['a', 'b'], minlen=3)
+        assert ['a', 'b', None, None] == listify(['a', 'b'], minlen=4)
 
     def test_none(self):
-        self.assertEqual([], listify(None))
-        self.assertEqual([], listify(None, minlen=0))
-        self.assertEqual([None], listify(None, minlen=1))
-        self.assertEqual([None, None], listify(None, minlen=2))
+        assert [] == listify(None)
+        assert [] == listify(None, minlen=0)
+        assert [None] == listify(None, minlen=1)
+        assert [None, None] == listify(None, minlen=2)
 
     def test_falsey(self):
-        self.assertEqual([0], listify(0))
-        self.assertEqual([0], listify(0, minlen=0))
-        self.assertEqual([0], listify(0, minlen=1))
-        self.assertEqual([0, None], listify(0, minlen=2))
+        assert [0] == listify(0)
+        assert [0] == listify(0, minlen=0)
+        assert [0] == listify(0, minlen=1)
+        assert [0, None] == listify(0, minlen=2)
 
-        self.assertEqual([""], listify(""))
-        self.assertEqual([""], listify("", minlen=0))
-        self.assertEqual([""], listify("", minlen=1))
-        self.assertEqual(["", None], listify("", minlen=2))
+        assert [''] == listify('')
+        assert [''] == listify('', minlen=0)
+        assert [''] == listify('', minlen=1)
+        assert ['', None] == listify('', minlen=2)
 
-        self.assertEqual([], listify([]))
-        self.assertEqual([], listify([], minlen=0))
-        self.assertEqual([None], listify([], minlen=1))
-        self.assertEqual([None, None], listify([], minlen=2))
+        assert [] == listify([])
+        assert [] == listify([], minlen=0)
+        assert [None] == listify([], minlen=1)
+        assert [None, None] == listify([], minlen=2)
 
     def test_set(self):
-        self.assertEqual([], listify(set()))
-        self.assertEqual(["a"], listify(set("a")))
-        self.assertEqual(["a", "b"], sorted(listify(set(["a", "b"]))))
+        assert [] == listify(set())
+        assert ['a'] == listify(set('a'))
+        assert ['a', 'b'] == sorted(listify(set(['a', 'b'])))
 
     def test_string(self):
-        self.assertEqual([""], listify(""))
-        self.assertEqual(["a"], listify("a"))
-        self.assertEqual(["ab"], listify("ab"))
+        assert [''] == listify('')
+        assert ['a'] == listify('a')
+        assert ['ab'] == listify('ab')
 
     def test_tuple(self):
-        self.assertEqual([], listify(tuple()))
-        self.assertEqual(["a"], listify(tuple("a")))
-        self.assertEqual(["a", "b"], listify(tuple(["a", "b"])))
+        assert [] == listify(tuple())
+        assert ['a'] == listify(tuple('a'))
+        assert ['a', 'b'] == listify(tuple(['a', 'b']))
 
     def test_list(self):
-        self.assertEqual([], listify([]))
-        self.assertEqual(["a"], listify(["a"]))
-        self.assertEqual(["a", "b"], listify(["a", "b"]))
+        assert [] == listify([])
+        assert ['a'] == listify(['a'])
+        assert ['a', 'b'] == listify(['a', 'b'])
 
     def test_list_identity(self):
-        x = ["a"]
+        x = ['a']
         y = listify(x)
-        self.assertEqual(x, y)
-        self.assertTrue(x is y)
-        x.append("b")
-        self.assertEqual(x, y)
+        assert x == y
+        assert x is y
+        x.append('b')
+        assert x == y
 
         class sublist(list):
             pass
 
-        x = sublist("a")
+        x = sublist('a')
         y = listify(x)
-        self.assertEqual(x, y)
-        self.assertTrue(x is y)
-        x.append("b")
-        self.assertEqual(x, y)
+        assert x == y
+        assert x is y
+        x.append('b')
+        assert x == y
 
-        x = sublist("a")
+        x = sublist('a')
         y = listify(x, cls=list)
-        self.assertEqual(x, y)
-        self.assertTrue(x is y)
-        x.append("b")
-        self.assertEqual(x, y)
+        assert x == y
+        assert x is y
+        x.append('b')
+        assert x == y
 
     def test_dict(self):
-        self.assertEqual([{}], listify({}))
-        self.assertEqual([{"a": "A"}], listify({"a": "A"}))
-        self.assertEqual([{"a": "A", "b": "B"}], listify({"a": "A", "b": "B"}))
+        assert [{}] == listify({})
+        assert [{'a': 'A'}] == listify({'a': 'A'})
+        assert [{'a': 'A', 'b': 'B'}] == listify({'a': 'A', 'b': 'B'})
 
     def test_object(self):
         a = object()
-        self.assertEqual([a], listify(a))
+        assert [a] == listify(a)
 
 
-class MappifyTest(BaseCollectionTestCase):
+class TestMappify(object):
     def test_default(self):
-        self.assertEqual({"a": None}, mappify(["a"], default=None))
-        self.assertEqual({"a": None, "b": None}, mappify(["a", "b"],
-                         default=None))
+        assert {'a': None} == mappify(['a'], default=None)
+        assert {'a': None, 'b': None} == mappify(['a', 'b'], default=None)
 
-        self.assertEqual({"a": "XXX"}, mappify(["a"], default="XXX"))
-        self.assertEqual({"a": "XXX", "b": "XXX"}, mappify(["a", "b"],
-                         default="XXX"))
+        assert {'a': 'XXX'} == mappify(['a'], default='XXX')
+        assert {'a': 'XXX', 'b': 'XXX'} == mappify(['a', 'b'], default='XXX')
 
     def test_cls(self):
-        x = {"a": "A"}
+        x = {'a': 'A'}
         y = mappify(x)
-        self.assertEqual(x, y)
-        self.assertTrue(x is y)
-        x["a"] = "B"
-        self.assertEqual(x, y)
+        assert x == y
+        assert x is y
+        x['a'] = 'B'
+        assert x == y
 
-        x = {"a": "A"}
+        x = {'a': 'A'}
         y = mappify(x, cls=None)
-        self.assertEqual(x, y)
-        self.assertTrue(x is y)
-        x["a"] = "B"
-        self.assertEqual(x, y)
+        assert x == y
+        assert x is y
+        x['a'] = 'B'
+        assert x == y
 
         class subdict(dict):
             pass
 
-        x = {"a": "A"}
+        x = {'a': 'A'}
         y = mappify(x, cls=subdict)
-        self.assertEqual(x, y)
-        self.assertFalse(x is y)
-        x["a"] = "B"
-        self.assertNotEqual(x, y)
+        assert x == y
+        assert x is not y
+        x['a'] = 'B'
+        assert x != y
 
-        x = {"a": "A"}
+        x = {'a': 'A'}
         y = mappify(x, cls=lambda x: defaultdict(list, x))
-        self.assertEqual(x, y)
-        self.assertFalse(x is y)
-        x["a"] = "B"
-        self.assertNotEqual(x, y)
+        assert x == y
+        assert x is not y
+        x['a'] = 'B'
+        assert x != y
 
     def test_none(self):
-        self.assertRaises(TypeError, mappify, None)
+        pytest.raises(TypeError, mappify, None)
 
     def test_set(self):
-        self.assertEqual({}, mappify(set()))
-        self.assertEqual({"a": True}, mappify(set("a")))
-        self.assertEqual({"a": True, "b": True}, mappify(set(["a", "b"])))
+        assert {} == mappify(set())
+        assert {'a': True} == mappify(set('a'))
+        assert {'a': True, 'b': True} == mappify(set(['a', 'b']))
 
     def test_string(self):
-        self.assertEqual({"": True}, mappify(""))
-        self.assertEqual({"a": True}, mappify("a"))
-        self.assertEqual({"ab": True}, mappify("ab"))
+        assert {'': True} == mappify('')
+        assert {'a': True} == mappify('a')
+        assert {'ab': True} == mappify('ab')
 
     def test_tuple(self):
-        self.assertEqual({}, mappify(tuple()))
-        self.assertEqual({"a": True}, mappify(tuple("a")))
-        self.assertEqual({"a": True, "b": True}, mappify(tuple(["a", "b"])))
+        assert {} == mappify(tuple())
+        assert {'a': True} == mappify(tuple('a'))
+        assert {'a': True, 'b': True} == mappify(tuple(['a', 'b']))
 
     def test_list(self):
-        self.assertEqual({}, mappify([]))
-        self.assertEqual({"a": True}, mappify(["a"]))
-        self.assertEqual({"a": True, "b": True}, mappify(["a", "b"]))
+        assert {} == mappify([])
+        assert {'a': True} == mappify(['a'])
+        assert {'a': True, 'b': True} == mappify(['a', 'b'])
 
     def test_dict(self):
-        self.assertEqual({}, mappify({}))
-        self.assertEqual({"a": "A"}, mappify({"a": "A"}))
-        self.assertEqual({"a": "A", "b": "B"}, mappify({"a": "A", "b": "B"}))
+        assert {} == mappify({})
+        assert {'a': 'A'} == mappify({'a': 'A'})
+        assert {'a': 'A', 'b': 'B'} == mappify({'a': 'A', 'b': 'B'})
 
     def test_dict_identity(self):
-        x = {"a": "A"}
+        x = {'a': 'A'}
         y = mappify(x)
-        self.assertEqual(x, y)
-        self.assertTrue(x is y)
-        x["a"] = "B"
-        self.assertEqual(x, y)
+        assert x == y
+        assert x is y
+        x['a'] = 'B'
+        assert x == y
 
         class subdict(dict):
             pass
 
-        x = subdict(a="B")
+        x = subdict(a='B')
         y = mappify(x)
-        self.assertEqual(x, y)
-        self.assertTrue(x is y)
-        x["a"] = "B"
-        self.assertEqual(x, y)
+        assert x == y
+        assert x is y
+        x['a'] = 'B'
+        assert x == y
 
-        x = subdict(a="B")
+        x = subdict(a='B')
         y = mappify(x, cls=dict)
-        self.assertEqual(x, y)
-        self.assertTrue(x is y)
-        x["a"] = "B"
-        self.assertEqual(x, y)
+        assert x == y
+        assert x is y
+        x['a'] = 'B'
+        assert x == y
 
     def test_ordered_dict(self):
         try:
@@ -312,14 +348,23 @@ class MappifyTest(BaseCollectionTestCase):
         except ImportError:
             pass
         else:
-            self.assertEqual({}, mappify(OrderedDict()))
-            self.assertEqual({"a": "A"}, mappify(OrderedDict({"a": "A"})))
+            assert {} == mappify(OrderedDict())
+            assert {'a': 'A'} == mappify(OrderedDict({'a': 'A'}))
 
     def test_frozenset(self):
-        self.assertEqual({}, mappify(frozenset()))
-        self.assertEqual({"a": True}, mappify(frozenset("a")))
-        self.assertEqual({"a": True, "b": True},
-                         mappify(frozenset(["a", "b"])))
+        assert {} == mappify(frozenset())
+        assert {'a': True} == mappify(frozenset('a'))
+        assert {'a': True, 'b': True}, mappify(frozenset(['a', 'b']))
 
     def test_object(self):
-        self.assertRaises(TypeError, mappify, object)
+        pytest.raises(TypeError, mappify, object)
+
+
+class TestUniquify(object):
+    def test_uniquify(self):
+        pytest.raises(TypeError, uniquify, None)
+        assert [] == uniquify([])
+        assert ['a', 'b', 'c'] == uniquify(['a', 'b', 'c'])
+        assert ['a'] == uniquify(['a', 'a', 'a', 'a', 'a', 'a', 'a', 'a'])
+        assert ['a', 'b', 'c', 'd', 'e'] == \
+            uniquify(['a', 'b', 'a', 'c', 'a', 'd', 'a', 'e'])

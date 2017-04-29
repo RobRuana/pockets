@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016 the Pockets team, see AUTHORS.
+# Copyright (c) 2017 the Pockets team, see AUTHORS.
 # Licensed under the BSD License, see LICENSE for details.
 
 """A pocket full of useful reflection functions!"""
@@ -11,11 +11,13 @@ import functools
 from pockets.collections import listify
 from six import string_types
 
-__all__ = ["resolve"]
+
+__all__ = ['resolve']
 
 
 def resolve(name, modules=None):
-    """Resolve a dotted name to an object (usually class, module, or function).
+    """
+    Resolve a dotted name to an object (usually class, module, or function).
 
     If `name` is a string, attempt to resolve it according to Python
     dot notation, e.g. "path.to.MyClass". If `name` is anything other than a
@@ -101,5 +103,5 @@ def resolve(name, modules=None):
         else:
             return obj
 
-    raise ValueError("Unable to resolve '{0}' "
-                     "in modules: {1}".format(name, modules))
+    raise ValueError(
+        "Unable to resolve '{0}' in modules: {1}".format(name, modules))

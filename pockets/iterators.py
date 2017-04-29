@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016 the Pockets team, see AUTHORS.
+# Copyright (c) 2017 the Pockets team, see AUTHORS.
 # Licensed under the BSD License, see LICENSE for details.
 
 """A pocket full of useful iterators!"""
@@ -9,11 +9,13 @@ import collections
 
 import six
 
-__all__ = ["peek_iter", "modify_iter"]
+
+__all__ = ['peek_iter', 'modify_iter']
 
 
 class peek_iter(object):
-    """An iterator object that supports peeking ahead.
+    """
+    An iterator object that supports peeking ahead.
 
     >>> p = peek_iter(["a", "b", "c", "d", "e"])
     >>> p.peek()
@@ -76,7 +78,8 @@ class peek_iter(object):
                 self._cache.append(self.sentinel)
 
     def has_next(self):
-        """Determine if iterator is exhausted.
+        """
+        Determine if iterator is exhausted.
 
         Returns:
             bool: True if iterator has more items, False otherwise.
@@ -88,7 +91,8 @@ class peek_iter(object):
         return self.peek() != self.sentinel
 
     def next(self, n=None):
-        """Get the next item or `n` items of the iterator.
+        """
+        Get the next item or `n` items of the iterator.
 
         Args:
             n (int, optional): The number of items to retrieve. Defaults to
@@ -130,7 +134,8 @@ class peek_iter(object):
         return result
 
     def peek(self, n=None):
-        """Preview the next item or `n` items of the iterator.
+        """
+        Preview the next item or `n` items of the iterator.
 
         The iterator is not advanced when peek is called.
 
@@ -173,7 +178,8 @@ class peek_iter(object):
 
 
 class modify_iter(peek_iter):
-    """An iterator object that supports modifying items as they are returned.
+    """
+    An iterator object that supports modifying items as they are returned.
 
     >>> a = ["     A list    ",
     ...      "   of strings  ",
@@ -232,12 +238,13 @@ class modify_iter(peek_iter):
         else:
             self.modifier = lambda x: x
         if not six.callable(self.modifier):
-            raise TypeError('modify_iter(o, modifier): '
-                            'modifier must be callable')
+            raise TypeError(
+                'modify_iter(o, modifier): modifier must be callable')
         super(modify_iter, self).__init__(*args)
 
     def _fillcache(self, n):
-        """Cache `n` modified items. If `n` is 0 or None, 1 item is cached.
+        """
+        Cache `n` modified items. If `n` is 0 or None, 1 item is cached.
 
         Each item returned by the iterator is passed through the
         `modify_iter.modified` function before being cached.

@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016 the Pockets team, see AUTHORS.
+# Copyright (c) 2017 the Pockets team, see AUTHORS.
 # Licensed under the BSD License, see LICENSE for details.
 
-"""A pocket full of useful string manipulation functions!"""
+"""A pocket full of useful string manipulation tools!"""
 
 from __future__ import absolute_import
 import re
 import six
-import sys
 
 from pockets.collections import listify
 
-__all__ = ["camel", "uncamel", "splitcaps"]
+
+__all__ = ['camel', 'uncamel', 'splitcaps', 'UnicodeMixin']
+
 
 # Default regular expression flags
 if six.PY2:
@@ -48,7 +49,8 @@ _splitcaps_re = re.compile(
 
 def camel(s, sep="_", lower_initial=False, upper_segments=None,
           preserve_upper=False):
-    """Convert underscore_separated string (aka snake_case) to CamelCase.
+    """
+    Convert underscore_separated string (aka snake_case) to CamelCase.
 
     Works on full sentences as well as individual words:
 
@@ -149,7 +151,8 @@ def camel(s, sep="_", lower_initial=False, upper_segments=None,
 
 
 def uncamel(s, sep="_"):
-    """Convert CamelCase string to underscore_separated (aka snake_case).
+    """
+    Convert CamelCase string to underscore_separated (aka snake_case).
 
     A CamelCase word is considered to be any uppercase letter followed by zero
     or more lowercase letters. Contiguous groups of uppercase letters – like
@@ -188,7 +191,8 @@ def uncamel(s, sep="_"):
 
 
 def splitcaps(s, pattern=None, maxsplit=None, flags=0):
-    """Intelligently split a string on capitalized words.
+    """
+    Intelligently split a string on capitalized words.
 
     A capitalized word is considered to be any uppercase letter followed by
     zero or more lowercase letters. Contiguous groups of uppercase letters –
@@ -283,8 +287,8 @@ def splitcaps(s, pattern=None, maxsplit=None, flags=0):
 
 
 class UnicodeMixin(object):
-    """Mixin class to define the proper __str__/__unicode__ methods in
-    Python 2 or 3.
+    """
+    Mixin class to define proper __str__/__unicode__ methods in Python 2 or 3.
 
     Originally found on the `Porting Python 2 Code to Python 3 HOWTO`_.
 
@@ -293,9 +297,9 @@ class UnicodeMixin(object):
 
     """
 
-    if sys.version_info[0] >= 3:  # Python 3
-        def __str__(self):
-            return self.__unicode__()
-    else:  # Python 2
+    if six.PY2:
         def __str__(self):
             return self.__unicode__().encode('utf8')
+    else:
+        def __str__(self):
+            return self.__unicode__()

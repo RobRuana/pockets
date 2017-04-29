@@ -43,7 +43,8 @@ needs_sphinx = '1.2'
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.doctest',
               'sphinx.ext.viewcode',
-              'sphinx.ext.napoleon']
+              'sphinx.ext.napoleon',
+              'sphinx_autodoc_napoleon_typehints']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
