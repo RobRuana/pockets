@@ -161,22 +161,45 @@ def mappify(x, default=True, cls=None):
         elif isinstance(x, Iterable):
             x = dict([(v, default) for v in x])
         else:
-            raise TypeError('Unable to mappify {0}'.format(type(x)), x)
+            raise TypeError(
+                'Unable to mappify non-mappy {0}'.format(type(x)), x)
 
     if cls and not (isclass(cls) and issubclass(type(x), cls)):
         x = cls(x)
     return x
 
 
-def uniquify(x):
+def uniquify(x, cls=None):
     """
     Returns an order-preserved copy of `x` with duplicate items removed.
 
     >>> uniquify(['a', 'z', 'a', 'b', 'a', 'y', 'a', 'c', 'a', 'x'])
     ['a', 'z', 'b', 'y', 'c', 'x']
 
+    Args:
+        x (Sequence): Sequence to uniquify.
+
+        cls (class or callable): Instead of wrapping `x` in a list, wrap it
+            in an instance of `cls`. `cls` should accept an iterable object
+            as its single parameter when called:
+
+            >>> from collections import deque
+            >>> listify(['a', 'b', 'c'], cls=deque)
+            deque(['a', 'b', 'c'])
+
+    Returns:
+        list: An order-preserved copy of `x` with duplicate items removed.
+
+    Raises:
+        TypeError: If `x` is not "listy".
+
     """
     if not is_listy(x):
-        raise TypeError('Unable to uniquify {0}'.format(type(x)), x)
+        raise TypeError(
+            'Unable to uniquify non-listy {0}'.format(type(x)), x)
     seen = set()
-    return [item for item in x if item not in seen and not seen.add(item)]
+    x = [item for item in x if item not in seen and not seen.add(item)]
+
+    if cls and not (isclass(cls) and issubclass(type(x), cls)):
+        x = cls(x)
+    return x

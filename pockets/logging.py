@@ -2,7 +2,13 @@
 # Copyright (c) 2017 the Pockets team, see AUTHORS.
 # Licensed under the BSD License, see LICENSE for details.
 
-"""A pocket full of useful logging tools!"""
+"""
+A pocket full of useful logging tools!
+
+The `pockets.logging` module adds a `logging.TRACE` level and a
+`logging.Logger.trace` method, so messages can be logged at a lower priority
+level than `logging.DEBUG`.
+"""
 
 from __future__ import absolute_import
 import inspect
@@ -15,7 +21,7 @@ from six import text_type as unicode_type
 
 
 __all__ = ['log_exceptions', 'AutoLogger', 'EagerFormattingAdapter',
-           'IndentMultilinesLogFormatter']
+           'IndentMultilineLogFormatter']
 
 
 TRACE = 5
@@ -35,9 +41,8 @@ def log_exceptions(fn):
     """
     Decorator that wraps a function and logs any raised exceptions.
 
-    The exception will still be raised after being logged.
-
-    Also logs the arguments to every call at the trace level.
+    The exception will still be raised after being logged. Also logs the
+    arguments to every call at the trace level.
     """
     from pockets.autolog import log
 
@@ -70,6 +75,13 @@ class AutoLogger(object):
 
     `AutoLogger` also inspects the local variables where it is called, looking
     for `self`. If `self` exists, its classname is added to the module name.
+
+    Args:
+        adapter_class (LoggerAdapter): optional `LoggerAdapter` class to use.
+        adapter_args (list): optional args to use when instantiating an
+            instance of `adapter_class`.
+        adapter_kwargs (dict): optional kwargs to use when instantiating an
+            instance of `adapter_class`.
     """
     def __init__(self, adapter_class=None, adapter_args=None,
                  adapter_kwargs=None):
@@ -112,6 +124,10 @@ class EagerFormattingAdapter(logging.LoggerAdapter):
     For performance reasons, the interpolation ONLY happens if the appropriate
     loglevel is set. This prevents unnecessary string formatting on log
     messages that will just be thrown out anyway.
+
+    Args:
+        logger (Logger): The underlying Logger instance to use.
+        extra (dict): Extra args, ignored by this implementation.
     """
     def __init__(self, logger, extra=None):
         """
@@ -270,15 +286,25 @@ class EagerFormattingAdapter(logging.LoggerAdapter):
         self.logger.log(level, self._eagerFormat(msg, level, args), **kwargs)
 
 
-class IndentMultilinesLogFormatter(logging.Formatter):
+class IndentMultilineLogFormatter(logging.Formatter):
     """
     Formatter which indents messages that are split across multiple lines.
+
+    Indents all lines that start with a newline so they are easier for
+    external log programs to parse.
     """
     def format(self, record):
+        """
+        Formats the given `LogRecord` by indenting all newlines.
+
+        Args:
+            record (LogRecord): The `LogRecord` to format.
+
+        Returns:
+            str: The formatted message with all newlines indented.
+        """
         if sys.version_info < (2, 7):
             s = logging.Formatter.format(self, record)
         else:
-            s = super(IndentMultilinesLogFormatter, self).format(record)
-        # Indent all lines that start with a newline so they are easier
-        # for external log programs to parse.
+            s = super(IndentMultilineLogFormatter, self).format(record)
         return s.rstrip('\n').replace('\n', '\n  ')

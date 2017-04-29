@@ -132,6 +132,7 @@ class TestListify(object):
 
         x = ['a']
         y = listify(x, cls=sublist)
+        assert isinstance(y, sublist)
         assert x == y
         assert x is not y
         x.append('b')
@@ -139,6 +140,7 @@ class TestListify(object):
 
         x = ['a']
         y = listify(x, cls=deque)
+        assert isinstance(y, deque)
         assert x == list(y)
         assert len(x) == len(y)
         assert x is not y
@@ -277,6 +279,7 @@ class TestMappify(object):
 
         x = {'a': 'A'}
         y = mappify(x, cls=subdict)
+        assert isinstance(y, subdict)
         assert x == y
         assert x is not y
         x['a'] = 'B'
@@ -284,6 +287,7 @@ class TestMappify(object):
 
         x = {'a': 'A'}
         y = mappify(x, cls=lambda x: defaultdict(list, x))
+        assert isinstance(y, defaultdict)
         assert x == y
         assert x is not y
         x['a'] = 'B'
@@ -368,3 +372,10 @@ class TestUniquify(object):
         assert ['a'] == uniquify(['a', 'a', 'a', 'a', 'a', 'a', 'a', 'a'])
         assert ['a', 'b', 'c', 'd', 'e'] == \
             uniquify(['a', 'b', 'a', 'c', 'a', 'd', 'a', 'e'])
+
+    def test_cls(self):
+        x = ['a', 'a']
+        y = uniquify(x, cls=deque)
+        assert isinstance(y, deque)
+        assert len(y) == 1
+        assert y == deque('a')

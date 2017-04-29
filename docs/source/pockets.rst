@@ -4,6 +4,15 @@ pockets package
 .. automodule:: pockets
 
 
+pockets.autolog module
+----------------------
+
+.. automodule:: pockets.autolog
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 pockets.collections module
 --------------------------
 
@@ -31,16 +40,19 @@ pockets.iterators module
     :show-inheritance:
 
 
-pockets.string module
----------------------
+pockets.logging module
+----------------------
 
-.. automodule:: pockets.string
+.. automodule:: pockets.logging
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-.. autoclass:: pockets.string.UnicodeMixin
+pockets.string module
+---------------------
+
+.. automodule:: pockets.string
     :members:
     :undoc-members:
     :show-inheritance:

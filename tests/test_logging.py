@@ -10,7 +10,7 @@ import logging
 import pytest
 from six import StringIO
 from pockets.logging import log_exceptions, AutoLogger, \
-    EagerFormattingAdapter, IndentMultilinesLogFormatter
+    EagerFormattingAdapter, IndentMultilineLogFormatter
 
 
 @pytest.fixture()
@@ -20,7 +20,7 @@ def log_stream(request):
     root.setLevel(logging.TRACE)
     handler = logging.StreamHandler(stream)
     handler.setLevel(logging.TRACE)
-    formatter = IndentMultilinesLogFormatter(
+    formatter = IndentMultilineLogFormatter(
         '[%(levelname)s] %(name)s: %(message)s')
     handler.setFormatter(formatter)
     root.addHandler(handler)
@@ -49,17 +49,18 @@ def test_log_exceptions(log_stream):
         assert False
 
     pytest.raises(AssertionError, raises_exception, 'arg1', kwarg1='kwarg1')
-    assert log_stream.getvalue() == """\
+    result = log_stream.getvalue()
+
+    assert result.startswith("""\
 [TRACE] pockets.logging: Calling tests.test_logging.raises_exception ['arg1'] {'kwarg1': 'kwarg1'}
 [ERROR] pockets.logging: Error calling function raises_exception: assert False
 [ERROR] pockets.logging: assert False
   Traceback (most recent call last):
-    File "/Users/ratface/Programming/pockets/pockets/logging.py", line 52, in wrapper
-      return fn(*args, **kwargs)
-    File "/Users/ratface/Programming/pockets/tests/test_logging.py", line 49, in raises_exception
-      assert False
+""")  # noqa
+
+    assert result.endswith("""\
   AssertionError: assert False
-"""  # noqa
+""")
 
 
 def test_eager_formatting_adapter(log_stream):
@@ -69,7 +70,7 @@ def test_eager_formatting_adapter(log_stream):
     log.trace('TEST NO INTERPOLATION')
     log.trace('TEST %s', 'MSG')
     log.debug('TEST %s', 'MSG')
-    log.info('TEST %s', 'MSG')
+    log.info('TEST %s%s%s', 'M', 'S', 'G')
     log.warn('TEST %s', 'MSG')
     log.warning('TEST %s', 'MSG')
     log.error('TEST %s', 'MSG')
@@ -79,7 +80,9 @@ def test_eager_formatting_adapter(log_stream):
         log.exception('TEST %s', 'MSG')
     log.critical('TEST %s', 'MSG')
     log.fatal('TEST %s', 'MSG')
-    assert log_stream.getvalue() == """\
+    result = log_stream.getvalue()
+
+    assert result.startswith("""\
 [DEBUG] tests.test_logging: a 1 b 2
 [TRACE] tests.test_logging: TEST NO INTERPOLATION
 [TRACE] tests.test_logging: TEST MSG
@@ -90,9 +93,10 @@ def test_eager_formatting_adapter(log_stream):
 [ERROR] tests.test_logging: TEST MSG
 [ERROR] tests.test_logging: TEST MSG
   Traceback (most recent call last):
-    File "/Users/ratface/Programming/pockets/tests/test_logging.py", line 77, in test_eager_formatting_adapter
-      assert False
+""")
+
+    assert result.endswith("""\
   AssertionError: assert False
 [CRITICAL] tests.test_logging: TEST MSG
 [CRITICAL] tests.test_logging: TEST MSG
-""" # noqa
+""")
