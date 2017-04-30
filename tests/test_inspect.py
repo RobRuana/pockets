@@ -9,7 +9,88 @@ import sys
 
 import pockets
 import pytest
-from pockets.inspect import resolve
+from pockets.inspect import collect_subclasses, collect_superclasses, \
+    collect_superclass_attr_names, resolve
+
+
+class A(object):
+    A_attr = 'A_attr'
+
+
+class Z(object):
+    Z_attr = 'Z_attr'
+
+
+class B1(A):
+    B1_attr = 'B1_attr'
+
+
+class B2(A):
+    B2_attr = 'B2_attr'
+
+
+class C1(B1):
+    C1_attr = 'C1_attr'
+
+
+class C2(B1):
+    C2_attr = 'C2_attr'
+
+
+class C3(B2, Z):
+    C3_attr = 'C3_attr'
+
+
+class C4(B2, Z):
+    C4_attr = 'C4_attr'
+
+
+class TestCollectClasses(object):
+
+    def test_collect_subclasses(self):
+        assert set(collect_subclasses(A)) == set([B1, B2, C1, C2, C3, C4])
+        assert set(collect_subclasses(Z)) == set([C3, C4])
+
+    def test_collect_superclasses(self):
+        assert set(collect_superclasses(C1)) == set([C1, B1, A, object])
+        assert set(collect_superclasses(C3)) == set([C3, B2, A, Z, object])
+
+    def test_collect_superclasses_terminal_class(self):
+        assert set(collect_superclasses(C1, terminal_class=object)) == \
+            set([C1, B1, A])
+        assert set(collect_superclasses(C1, terminal_class=A)) == \
+            set([C1, B1])
+        assert set(collect_superclasses(C1, terminal_class=B1)) == \
+            set([C1])
+        assert set(collect_superclasses(C3, terminal_class=A)) == \
+            set([C3, B2, Z, object])
+        assert set(collect_superclasses(C3, terminal_class=[A, object])) == \
+            set([C3, B2, Z])
+
+    def test_collect_superclasses_modules(self):
+        mod = sys.modules['tests.test_inspect']
+        assert set(collect_superclasses(C1, modules=mod)) == \
+            set([C1, B1, A])
+        assert set(collect_superclasses(C1, modules='tests.test_inspect')) == \
+            set([C1, B1, A])
+        assert set(collect_superclasses(C1, modules=[mod, 'NOTFOUND'])) == \
+            set([C1, B1, A])
+        assert set(collect_superclasses(C1, modules='tests')) == set()
+        assert set(collect_superclasses(C1, modules='tests.NOTFOUND')) == set()
+        assert set(collect_superclasses(C1, modules='NOTFOUND')) == set()
+
+    def test_collect_superclass_attr_names(self):
+        result = collect_superclass_attr_names(C1)
+        assert set(filter(lambda s: not s.startswith('_'), result)) == set([
+            'A_attr',
+            'B1_attr',
+            'C1_attr'])
+        result = collect_superclass_attr_names(C3)
+        assert set(filter(lambda s: not s.startswith('_'), result)) == set([
+            'A_attr',
+            'B2_attr',
+            'C3_attr',
+            'Z_attr'])
 
 
 class TestResolve(object):
@@ -87,7 +168,7 @@ class TestResolve(object):
 
         # Seems odd that this would raise an error, seeing as it worked
         # fine two lines above. However, resolve uses the *calling* function's
-        # module as the search path, which in this case is unittest
+        # module as the search path, which in this case is pytest
         pytest.raises(ValueError, resolve, 'MOD_ATTR')
         pytest.raises(ValueError, resolve, '.MOD_ATTR')
 

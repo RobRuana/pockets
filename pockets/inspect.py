@@ -8,11 +8,107 @@ from __future__ import absolute_import
 import inspect
 import functools
 
+import six
 from pockets.collections import listify
 from six import string_types
 
 
-__all__ = ['resolve']
+__all__ = [
+    'collect_subclasses', 'collect_superclasses',
+    'collect_superclass_attr_names', 'resolve']
+
+
+def collect_subclasses(cls):
+    """
+    Recursively collects all descendant subclasses that inherit from the
+    given class, not including the class itself.
+
+    Note:
+        Does not include `cls` itself.
+
+    Args:
+        cls (class): The class object from which the collection should begin.
+
+    Returns:
+        list: A list of `class` objects that inherit from `cls`. This list
+            will not include `cls` itself.
+    """
+    subclasses = set()
+    for subclass in cls.__subclasses__():
+        subclasses.add(subclass)
+        subclasses.update(collect_subclasses(subclass))
+    return list(subclasses)
+
+
+def collect_superclasses(cls, terminal_class=None, modules=None):
+    """
+    Recursively collects all ancestor superclasses in the inheritance
+    hierarchy of the given class, including the class itself.
+
+    Note:
+        Inlcudes `cls` itself. Will not include `terminal_class`.
+
+    Args:
+        cls (class): The class object from which the collection should begin.
+        terminal_class (class or list): If `terminal_class` is encountered in
+            the hierarchy, we stop ascending the tree. `terminal_class` will
+            not be included in the returned list.
+        modules (string, module, or list): If `modules` is passed, we only
+            return classes that are in the given module/modules. This can be
+            used to exclude base classes that come from external libraries.
+
+    Returns:
+        list: A list of `class` objects from which `cls` inherits. This list
+            will include `cls` itself.
+    """
+    terminal_class = listify(terminal_class)
+    if modules is not None:
+        modules = listify(modules)
+        module_strings = []
+        for m in modules:
+            if isinstance(m, six.string_types):
+                module_strings.append(m)
+            else:
+                module_strings.append(m.__name__)
+        modules = module_strings
+
+    superclasses = set()
+    is_in_module = modules is None or cls.__module__ in modules
+    if is_in_module and cls not in terminal_class:
+        superclasses.add(cls)
+        for base in cls.__bases__:
+            superclasses.update(
+                collect_superclasses(base, terminal_class, modules))
+
+    return list(superclasses)
+
+
+def collect_superclass_attr_names(cls, terminal_class=None, modules=None):
+    """
+    Recursively collects all attribute names of ancestor superclasses in the
+    inheritance hierarchy of the given class, including the class itself.
+
+    Note:
+        Inlcudes `cls` itself. Will not include `terminal_class`.
+
+    Args:
+        cls (class): The class object from which the collection should begin.
+        terminal_class (class or list): If `terminal_class` is encountered in
+            the hierarchy, we stop ascending the tree. Attributes from
+            `terminal_class` will not be included in the returned list.
+        modules (string, module, or list): If `modules` is passed, we only
+            return classes that are in the given module/modules. This can be
+            used to exclude base classes that come from external libraries.
+
+    Returns:
+        list: A list of `str` attribute names for every `class` in the
+            inheritance hierarchy.
+    """
+    superclasses = collect_superclasses(cls, terminal_class, modules)
+    attr_names = set()
+    for superclass in superclasses:
+        attr_names.update(superclass.__dict__.keys())
+    return list(attr_names)
 
 
 def resolve(name, modules=None):

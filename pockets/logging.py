@@ -20,8 +20,9 @@ from functools import wraps
 from six import text_type as unicode_type
 
 
-__all__ = ['log_exceptions', 'AutoLogger', 'EagerFormattingAdapter',
-           'IndentMultilineLogFormatter']
+__all__ = [
+    'log_exceptions', 'AutoLogger', 'EagerFormattingAdapter',
+    'IndentMultilineLogFormatter']
 
 
 TRACE = 5

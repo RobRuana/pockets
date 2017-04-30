@@ -3,6 +3,14 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.4.2 (2017-04-30)
+--------------------------
+
+ * Adds pockets.inspect.collect_subclasses
+ * Adds pockets.inspect.collect_superclasses
+ * Adds pockets.inspect.collect_superclass_attr_names
+
+
 Version 0.4.1 (2017-04-29)
 --------------------------
 
