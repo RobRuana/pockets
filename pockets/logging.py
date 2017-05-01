@@ -50,10 +50,8 @@ def log_exceptions(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         try:
-            a = args or []
-            a = [str(x)[:255] for x in a]
-            kw = kwargs or {}
-            kw = dict([(str(k)[:255], str(v)[:255]) for k, v in kw.items()])
+            a = [str(x)[:255] for x in args]
+            kw = dict([(k[:255], str(v)[:255]) for k, v in kwargs.items()])
             log.trace('Calling %s.%s %r %r', fn.__module__, fn.__name__, a, kw)
             return fn(*args, **kwargs)
         except Exception as e:
