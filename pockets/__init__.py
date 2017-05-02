@@ -23,6 +23,7 @@ works just as well as::
 from __future__ import absolute_import
 from pockets._version import __version__
 from pockets.collections import *
+from pockets.decorators import *
 from pockets.inspect import *
 from pockets.iterators import *
 from pockets.logging import *

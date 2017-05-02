@@ -3,6 +3,13 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.5.0 (2017-05-02)
+--------------------------
+
+ * Adds pockets.decorators module
+ * Adds pockets.inspect.is_data_attr function
+
+
 Version 0.4.2 (2017-04-30)
 --------------------------
 

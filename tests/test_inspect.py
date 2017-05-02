@@ -9,8 +9,9 @@ import sys
 
 import pockets
 import pytest
+from pockets.decorators import classproperty
 from pockets.inspect import collect_subclasses, collect_superclasses, \
-    collect_superclass_attr_names, resolve
+    collect_superclass_attr_names, is_data_attr, resolve
 
 
 class A(object):
@@ -91,6 +92,51 @@ class TestCollectClasses(object):
             'B2_attr',
             'C3_attr',
             'Z_attr'])
+
+
+class TestIsDataAttr(object):
+
+    class DocClass(object):
+        """is not data"""
+        clsattr = 'is data'
+
+        def __init__(self):
+            self.attr = 'is data'
+
+        @classproperty
+        def clsprop(cls):
+            """is data"""
+            pass
+
+        @classmethod
+        def clsmeth(cls):
+            """is not data"""
+            pass
+
+        @property
+        def prop(self):
+            """is not data"""
+            pass
+
+        def meth(self):
+            """is not data"""
+            pass
+
+    def test_is_data_attr(self):
+        assert is_data_attr('string literal')
+        assert is_data_attr(TestIsDataAttr.DocClass)
+        assert is_data_attr(TestIsDataAttr.DocClass.clsattr)
+        assert is_data_attr(TestIsDataAttr.DocClass.clsprop)
+        assert not is_data_attr(TestIsDataAttr.DocClass.prop)
+        assert not is_data_attr(TestIsDataAttr.DocClass.meth)
+        assert not is_data_attr(TestIsDataAttr.DocClass.clsmeth)
+        docobj = TestIsDataAttr.DocClass()
+        assert is_data_attr(docobj)
+        assert is_data_attr(docobj.attr)
+        assert is_data_attr(docobj.clsattr)
+        assert is_data_attr(docobj.prop)
+        assert not is_data_attr(docobj.meth)
+        assert not is_data_attr(docobj.clsmeth)
 
 
 class TestResolve(object):
