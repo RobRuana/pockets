@@ -3,6 +3,12 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.5.1 (2017-05-02)
+--------------------------
+
+ * Renames pockets.inspect.is_data_attr to pockets.inspect.is_data
+
+
 Version 0.5.0 (2017-05-02)
 --------------------------
 

@@ -15,7 +15,7 @@ from six import string_types
 
 __all__ = [
     'collect_subclasses', 'collect_superclasses',
-    'collect_superclass_attr_names', 'is_data_attr', 'resolve']
+    'collect_superclass_attr_names', 'is_data', 'resolve']
 
 
 def collect_subclasses(cls):
@@ -111,14 +111,18 @@ def collect_superclass_attr_names(cls, terminal_class=None, modules=None):
     return list(attr_names)
 
 
-def is_data_attr(obj):
+def is_data(obj):
     """
     Returns True if `obj` is a "data like" object.
 
     Strongly inspired by `inspect.classify_class_attrs`. This function is
-    useful when trying to determine if an object's attributes have meaningful
-    docstrings or not. The methods of an object can have meaningful docstrings,
-    whereas the attributes of an object cannot.
+    useful when trying to determine if an attribute has a meaningful docstring
+    or not. In general, a routine can have meaningful docstrings, whereas
+    non-routines cannot.
+
+    See Also:
+        * `inspect.classify_class_attrs`
+        * `inspect.isroutine`
 
     Args:
         obj (object): The object in question.
@@ -126,9 +130,8 @@ def is_data_attr(obj):
     Returns:
         bool: True if `obj` is "data like", False otherwise.
     """
-    if isinstance(obj, (classmethod, staticmethod, property)) or \
-            inspect.ismethod(obj) or inspect.ismethoddescriptor(obj) or \
-            inspect.isfunction(obj) or inspect.isdatadescriptor(obj):
+    if isinstance(obj, (staticmethod, classmethod, property)) or \
+            inspect.isroutine(obj):
         return False
     else:
         return True
