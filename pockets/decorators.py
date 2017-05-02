@@ -17,7 +17,8 @@ class classproperty(property):
     methods.  This decorator may be used like to create a class-level property,
     useful for singletons and other one-per-class properties.
 
-    This implementation is partially based on `sqlalchemy.util.langhelpers`.
+    This implementation is partially based on
+    `sqlalchemy.util.langhelpers.classproperty`.
 
     Note:
         Class properties created by @classproperty are read-only. Any attempts
