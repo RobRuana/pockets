@@ -8,7 +8,7 @@
 __all__ = ['classproperty']
 
 
-def classproperty(cls):
+class classproperty(property):
     """
     Decorator to create a read-only class property similar to classmethod.
 
@@ -16,6 +16,8 @@ def classproperty(cls):
     recognize @classmethods and behaves differently on them than on instance
     methods.  This decorator may be used like to create a class-level property,
     useful for singletons and other one-per-class properties.
+
+    This implementation is partially based on `sqlalchemy.util.langhelpers`.
 
     Note:
         Class properties created by @classproperty are read-only. Any attempts
@@ -30,16 +32,18 @@ def classproperty(cls):
     'MyClass.myproperty'
 
     """
-    class _classproperty(property):
-        def __get__(self, cls, owner):
-            return self.fget.__get__(None, owner)()
+    def __init__(self, fget, *arg, **kw):
+        super(classproperty, self).__init__(fget, *arg, **kw)
+        self.__doc__ = fget.__doc__
 
-        def getter(self, fget):
-            raise AttributeError('@classproperty.getter is not supported')
+    def __get__(desc, self, cls):
+        return desc.fget(cls)
 
-        def setter(self, fset):
-            raise AttributeError('@classproperty.setter is not supported')
+    def getter(self, fget):
+        raise AttributeError('@classproperty.getter is not supported')
 
-        def deleter(self, fdel):
-            raise AttributeError('@classproperty.deleter is not supported')
-    return _classproperty(classmethod(cls))
+    def setter(self, fset):
+        raise AttributeError('@classproperty.setter is not supported')
+
+    def deleter(self, fdel):
+        raise AttributeError('@classproperty.deleter is not supported')

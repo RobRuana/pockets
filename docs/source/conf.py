@@ -30,7 +30,9 @@ autodoc_default_flags = []
 
 # -- Napoleon configuration -----------------------------------------------
 
-napoleon_use_rtype = False
+napoleon_use_ivar = True
+napoleon_use_param = True
+napoleon_use_rtype = True
 
 # -- General configuration ------------------------------------------------
 
@@ -43,8 +45,14 @@ needs_sphinx = '1.2'
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.doctest',
               'sphinx.ext.viewcode',
+              'sphinx.ext.intersphinx',
               'sphinx.ext.napoleon',
               'sphinx_autodoc_napoleon_typehints']
+
+intersphinx_mapping = {
+  'pockets': ('https://pockets.readthedocs.io/en/latest/', None),
+  'python': ('https://docs.python.org/3.6', None)
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
