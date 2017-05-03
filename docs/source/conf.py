@@ -68,7 +68,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pockets'
-copyright = u'2016 Rob Ruana'
+copyright = u'2017 The Pockets Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
