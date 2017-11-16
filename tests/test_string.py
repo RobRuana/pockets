@@ -426,12 +426,12 @@ class TestCamel(object):
         ])
 
     def test_unicode(self):
-        O = u('ಠ').upper()
+        O_O = u('ಠ').upper()
         self._run_tests([
             (u('te_one_ಠ_ಠ te_two‿ಠ‿ಠ'),
-             u('TeOne') + O + O + u(' TeTwo‿ಠ‿ಠ')),
+             u('TeOne') + O_O + O_O + u(' TeTwo‿ಠ‿ಠ')),
             (u('ಠ_ಠ_te_oneಠ_ಠ ಠ‿ಠte_twoಠ‿ಠ'),
-             O + O + u('TeOneಠ') + O + u(' ') + O + u('‿ಠteTwoಠ‿ಠ'))
+             O_O + O_O + u('TeOneಠ') + O_O + u(' ') + O_O + u('‿ಠteTwoಠ‿ಠ'))
         ])
 
 
