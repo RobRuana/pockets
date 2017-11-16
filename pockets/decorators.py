@@ -4,8 +4,39 @@
 
 """A pocket full of useful decorators!"""
 
+from functools import wraps
 
-__all__ = ['classproperty']
+
+__all__ = ['cached_classproperty', 'cached_property', 'classproperty']
+
+
+class cached_classproperty(property):
+    """
+    Like @cached_property except it works on classes instead of instances.
+    """
+    def __init__(self, fget, *arg, **kw):
+        super(cached_classproperty, self).__init__(fget, *arg, **kw)
+        self.__doc__ = fget.__doc__
+        self.__fget_name__ = fget.__name__
+
+    def __get__(desc, self, cls):
+        cache_attr = '_cached_{0}_{1}'.format(desc.__fget_name__, cls.__name__)
+        if not hasattr(cls, cache_attr):
+            setattr(cls, cache_attr, desc.fget(cls))
+        return getattr(cls, cache_attr)
+
+
+def cached_property(func):
+    """decorator for making readonly, memoized properties"""
+    cache_attr = '_cached_{0}'.format(func.__name__)
+
+    @property
+    @wraps(func)
+    def caching(self, *args, **kwargs):
+        if not hasattr(self, cache_attr):
+            setattr(self, cache_attr, func(self, *args, **kwargs))
+        return getattr(self, cache_attr)
+    return caching
 
 
 class classproperty(property):

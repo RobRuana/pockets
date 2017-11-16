@@ -36,6 +36,8 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
         'Topic :: Utilities',
+        'Topic :: Software Development :: Libraries',
+        'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     platforms='any',
     packages=find_packages(exclude=['tests*']),
