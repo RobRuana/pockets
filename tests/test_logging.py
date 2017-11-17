@@ -76,7 +76,7 @@ def test_eager_formatting_adapter(log_stream):
     log.error('TEST %s', 'MSG')
     try:
         assert False
-    except Exception as ex:
+    except Exception:
         log.exception('TEST %s', 'MSG')
     log.critical('TEST %s', 'MSG')
     log.fatal('TEST %s', 'MSG')
