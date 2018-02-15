@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2017 the Pockets team, see AUTHORS.
+# Copyright (c) 2018 the Pockets team, see AUTHORS.
 # Licensed under the BSD License, see LICENSE for details.
 
-"""A pocket full of useful collection functions!"""
+"""A pocket full of useful collection tools!"""
 
 from __future__ import absolute_import
 from collections import defaultdict, Iterable, Mapping, Sized

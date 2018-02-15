@@ -3,6 +3,32 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.6 (2018-02-15)
+------------------------
+
+Adds the following functions and classes:
+
+ * pockets.collections.groupify
+ * pockets.collections.keydefaultdict
+ * pockets.collections.nesteddefaultdict
+ * pockets.collections.readable_join
+ * pockets.datetime.ceil_datetime
+ * pockets.datetime.floor_datetime
+ * pockets.datetime.round_datetime
+ * pockets.datetime.timedelta_total_seconds
+ * pockets.decorators.argmod
+ * pockets.inspect.unwrap
+ * pockets.string.fieldify
+ * pockets.string.unfieldify
+ * pockets.string.slug
+
+Additionally renames the following classes (the original names
+are still exported for backwards compatibility):
+
+ * pockets.iterators.modify_iter -> itermod
+ * pockets.iterators.peek_iter -> iterpeek
+
+
 Version 0.5.1 (2017-05-02)
 --------------------------
 

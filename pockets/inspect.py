@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2017 the Pockets team, see AUTHORS.
+# Copyright (c) 2018 the Pockets team, see AUTHORS.
 # Licensed under the BSD License, see LICENSE for details.
 
 """A pocket full of useful reflection functions!"""
