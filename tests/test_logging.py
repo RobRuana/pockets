@@ -9,6 +9,7 @@ import logging
 
 import pytest
 from six import StringIO
+
 from pockets.logging import log_exceptions, AutoLogger, \
     EagerFormattingAdapter, IndentMultilineLogFormatter
 

@@ -10,14 +10,14 @@ import collections
 import six
 
 
-__all__ = ['peek_iter', 'modify_iter']
+__all__ = ['itermod', 'iterpeek', 'modify_iter', 'peek_iter']
 
 
-class peek_iter(object):
+class iterpeek(object):
     """
     An iterator object that supports peeking ahead.
 
-    >>> p = peek_iter(["a", "b", "c", "d", "e"])
+    >>> p = iterpeek(["a", "b", "c", "d", "e"])
     >>> p.peek()
     'a'
     >>> p.next()
@@ -41,13 +41,13 @@ class peek_iter(object):
             raised, otherwise the value will be returned.
 
     See Also:
-        `peek_iter` can operate as a drop in replacement for the built-in
+        `iterpeek` can operate as a drop in replacement for the built-in
         `iter <http://docs.python.org/2/library/functions.html#iter>`_
         function.
 
     Attributes:
         sentinel (any value): The value used to indicate the iterator is
-            exhausted. If `sentinel` was not given when the `peek_iter` was
+            exhausted. If `sentinel` was not given when the `iterpeek` was
             instantiated, then it will be set to a new object
             instance: ``object()``.
 
@@ -104,7 +104,7 @@ class peek_iter(object):
             the items will be returned in a list. If `n` is 0, an empty
             list is returned:
 
-                >>> p = peek_iter(["a", "b", "c", "d", "e"])
+                >>> p = iterpeek(["a", "b", "c", "d", "e"])
                 >>> p.next()
                 'a'
                 >>> p.next(0)
@@ -149,10 +149,10 @@ class peek_iter(object):
             the items will be returned in a list. If `n` is 0, an empty
             list is returned.
 
-            If the iterator is exhausted, `peek_iter.sentinel` is returned,
+            If the iterator is exhausted, `iterpeek.sentinel` is returned,
             or placed as the last item in the returned list:
 
-                >>> p = peek_iter(["a", "b", "c"])
+                >>> p = iterpeek(["a", "b", "c"])
                 >>> p.sentinel = "END"
                 >>> p.peek()
                 'a'
@@ -177,7 +177,11 @@ class peek_iter(object):
         return result
 
 
-class modify_iter(peek_iter):
+# Backwards compatibility
+peek_iter = iterpeek
+
+
+class itermod(iterpeek):
     """
     An iterator object that supports modifying items as they are returned.
 
@@ -187,7 +191,7 @@ class modify_iter(peek_iter):
     ...      "      extra    ",
     ...      "   whitespace. "]
     >>> modifier = lambda s: s.strip().replace('with', 'without')
-    >>> for s in modify_iter(a, modifier=modifier):
+    >>> for s in itermod(a, modifier=modifier):
     ...   print('"%s"' % s)
     "A list"
     "of strings"
@@ -224,7 +228,7 @@ class modify_iter(peek_iter):
             the item.
 
             Values returned by `peek` as well as `next` are affected by
-            `modifier`. However, `modify_iter.sentinel` is never passed through
+            `modifier`. However, `itermod.sentinel` is never passed through
             `modifier`; it will always be returned from `peek` unmodified.
 
     """
@@ -239,15 +243,15 @@ class modify_iter(peek_iter):
             self.modifier = lambda x: x
         if not six.callable(self.modifier):
             raise TypeError(
-                'modify_iter(o, modifier): modifier must be callable')
-        super(modify_iter, self).__init__(*args)
+                'itermod(o, modifier): modifier must be callable')
+        super(itermod, self).__init__(*args)
 
     def _fillcache(self, n):
         """
         Cache `n` modified items. If `n` is 0 or None, 1 item is cached.
 
         Each item returned by the iterator is passed through the
-        `modify_iter.modified` function before being cached.
+        `itermod.modified` function before being cached.
 
         """
         if not n:
@@ -258,3 +262,7 @@ class modify_iter(peek_iter):
         except StopIteration:
             while len(self._cache) < n:
                 self._cache.append(self.sentinel)
+
+
+# Backwards compatibility
+modify_iter = itermod

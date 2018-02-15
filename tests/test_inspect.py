@@ -6,12 +6,14 @@
 
 from __future__ import absolute_import
 import sys
+from functools import wraps
+
+import pytest
 
 import pockets
-import pytest
 from pockets.decorators import classproperty
 from pockets.inspect import collect_subclasses, collect_superclasses, \
-    collect_superclass_attr_names, is_data, resolve
+    collect_superclass_attr_names, is_data, resolve, unwrap
 
 
 class A(object):
@@ -158,54 +160,54 @@ class TestResolve(object):
     def test_modules_none(self):
         assert resolve('pockets') is pockets
         assert resolve('pockets.iterators') is pockets.iterators
-        assert resolve('pockets.iterators.peek_iter') is \
-            pockets.iterators.peek_iter
+        assert resolve('pockets.iterators.iterpeek') is \
+            pockets.iterators.iterpeek
 
     def test_modules_string(self):
-        dt = __import__('datetime')
-        assert resolve('datetime') is dt
-        assert resolve('datetime', 'datetime') is dt.datetime
+        sock = __import__('socket')
+        assert resolve('socket') is sock
+        assert resolve('getfqdn', 'socket') is sock.getfqdn
         assert resolve('iterators', 'pockets') is pockets.iterators
-        assert resolve('peek_iter', 'pockets.iterators') is \
-            pockets.iterators.peek_iter
-        assert resolve('iterators.peek_iter', 'pockets') is \
-            pockets.iterators.peek_iter
+        assert resolve('iterpeek', 'pockets.iterators') is \
+            pockets.iterators.iterpeek
+        assert resolve('iterators.iterpeek', 'pockets') is \
+            pockets.iterators.iterpeek
 
     def test_modules_list(self):
-        dt = __import__('datetime')
-        assert resolve('datetime') is dt
-        assert resolve('datetime', ['pockets', 'datetime']) is dt.datetime
-        assert resolve('iterators', ['pockets', 'datetime']) is \
+        sock = __import__('socket')
+        assert resolve('socket') is sock
+        assert resolve('getfqdn', ['pockets', 'socket']) is sock.getfqdn
+        assert resolve('iterators', ['pockets', 'socket']) is \
             pockets.iterators
-        assert resolve('iterators', ['datetime', 'pockets']) is \
+        assert resolve('iterators', ['socket', 'pockets']) is \
             pockets.iterators
-        assert resolve('peek_iter', ['pockets', 'pockets.iterators']) is \
-            pockets.iterators.peek_iter
-        assert resolve('peek_iter', ['pockets.iterators', 'pockets']) is \
-            pockets.iterators.peek_iter
+        assert resolve('iterpeek', ['pockets', 'pockets.iterators']) is \
+            pockets.iterators.iterpeek
+        assert resolve('iterpeek', ['pockets.iterators', 'pockets']) is \
+            pockets.iterators.iterpeek
         assert resolve(
-            'iterators.peek_iter', ['pockets', 'pockets.iterators']) is \
-            pockets.iterators.peek_iter
+            'iterators.iterpeek', ['pockets', 'pockets.iterators']) is \
+            pockets.iterators.iterpeek
         assert resolve(
-            'iterators.peek_iter', ['pockets.iterators', 'pockets']) is \
-            pockets.iterators.peek_iter
+            'iterators.iterpeek', ['pockets.iterators', 'pockets']) is \
+            pockets.iterators.iterpeek
 
     def test_relative_import(self):
-        dt = __import__('datetime')
-        assert resolve('.datetime') is dt
-        assert resolve('..datetime') is dt
-        assert resolve('.datetime', 'datetime') is dt.datetime
-        assert resolve('..datetime', 'datetime') is dt.datetime
+        sock = __import__('socket')
+        assert resolve('.socket') is sock
+        assert resolve('..socket') is sock
+        assert resolve('.getfqdn', 'socket') is sock.getfqdn
+        assert resolve('..getfqdn', 'socket') is sock.getfqdn
         assert resolve('.iterators', 'pockets') is pockets.iterators
         assert resolve('..iterators', 'pockets') is pockets.iterators
-        assert resolve('.peek_iter', 'pockets.iterators') is \
-            pockets.iterators.peek_iter
-        assert resolve('..peek_iter', 'pockets.iterators') is \
-            pockets.iterators.peek_iter
-        assert resolve('.iterators.peek_iter', 'pockets') is \
-            pockets.iterators.peek_iter
-        assert resolve('..iterators.peek_iter', 'pockets') is \
-            pockets.iterators.peek_iter
+        assert resolve('.iterpeek', 'pockets.iterators') is \
+            pockets.iterators.iterpeek
+        assert resolve('..iterpeek', 'pockets.iterators') is \
+            pockets.iterators.iterpeek
+        assert resolve('.iterators.iterpeek', 'pockets') is \
+            pockets.iterators.iterpeek
+        assert resolve('..iterators.iterpeek', 'pockets') is \
+            pockets.iterators.iterpeek
 
         mod = sys.modules['tests.test_inspect']
         mod.MOD_ATTR = 'asdf'
@@ -237,3 +239,46 @@ class TestResolve(object):
         pytest.raises(ValueError, resolve, 'NOTFOUND', 'pockets')
         pytest.raises(ValueError, resolve, 'NOTFOUND', ['pockets'])
         pytest.raises(ValueError, resolve, 'NOTFOUND', ['pockets', 're'])
+
+
+def wraps_decorator(func):
+    @wraps(func)
+    def with_wraps_decorator(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    if not hasattr(with_wraps_decorator, '__wrapped__'):
+        with_wraps_decorator.__wrapped__ = func
+
+    return with_wraps_decorator
+
+
+class TestUnwrap(object):
+
+    def test_never_wrapped(self):
+        def innermost():
+            return 'return value'
+
+        unwrapped = unwrap(innermost)
+        assert unwrapped is innermost
+
+    def test_single_wrapped(self):
+        def innermost():
+            return 'return value'
+
+        wrapped = wraps_decorator(innermost)
+        assert wrapped is not innermost
+        assert wrapped() == 'return value'
+
+        unwrapped = unwrap(wrapped)
+        assert unwrapped is innermost
+
+    def test_multi_wrapped(self):
+        def innermost():
+            return 'return value'
+
+        wrapped = wraps_decorator(wraps_decorator(wraps_decorator(innermost)))
+        assert wrapped is not innermost
+        assert wrapped() == 'return value'
+
+        unwrapped = unwrap(wrapped)
+        assert unwrapped is innermost

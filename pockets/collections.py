@@ -5,13 +5,217 @@
 """A pocket full of useful collection functions!"""
 
 from __future__ import absolute_import
-from collections import Sized, Iterable, Mapping
+from collections import defaultdict, Iterable, Mapping, Sized
 from inspect import isclass
 
 import six
 
 
-__all__ = ['is_listy', 'listify', 'mappify', 'uniquify']
+try:
+    from collections import OrderedDict
+except ImportError:
+    OrderedDict = dict
+
+
+__all__ = [
+    'groupify', 'keydefaultdict', 'is_listy', 'listify', 'mappify',
+    'nesteddefaultdict', 'readable_join', 'uniquify']
+
+
+def groupify(items, keys, val_key=None):
+    """
+    Groups a list of items into nested OrderedDicts based on the given keys.
+
+    Note:
+        On Python 2.6 the return value will use regular dicts instead of
+        OrderedDicts.
+
+    >>> from json import dumps
+    >>>
+    >>> class Reminder:
+    ...   def __init__(self, when, where, what):
+    ...     self.when = when
+    ...     self.where = where
+    ...     self.what = what
+    ...   def __repr__(self):
+    ...     return 'Reminder({0.when}, {0.where}, {0.what})'.format(self)
+    ...
+    >>> reminders = [
+    ...   Reminder('Fri', 'Home', 'Eat cereal'),
+    ...   Reminder('Fri', 'Work', 'Feed Ivan'),
+    ...   Reminder('Sat', 'Home', 'Sleep in'),
+    ...   Reminder('Sat', 'Home', 'Play Zelda'),
+    ...   Reminder('Sun', 'Home', 'Sleep in'),
+    ...   Reminder('Sun', 'Work', 'Reset database')]
+    >>>
+    >>> print(dumps(groupify(reminders, None),
+    ...             indent=2,
+    ...             sort_keys=True,
+    ...             default=repr)) # doctest: +NORMALIZE_WHITESPACE
+    [
+      "Reminder(Fri, Home, Eat cereal)",
+      "Reminder(Fri, Work, Feed Ivan)",
+      "Reminder(Sat, Home, Sleep in)",
+      "Reminder(Sat, Home, Play Zelda)",
+      "Reminder(Sun, Home, Sleep in)",
+      "Reminder(Sun, Work, Reset database)"
+    ]
+    >>>
+    >>> print(dumps(groupify(reminders, 'when'),
+    ...             indent=2,
+    ...             sort_keys=True,
+    ...             default=repr)) # doctest: +NORMALIZE_WHITESPACE
+    {
+      "Fri": [
+        "Reminder(Fri, Home, Eat cereal)",
+        "Reminder(Fri, Work, Feed Ivan)"
+      ],
+      "Sat": [
+        "Reminder(Sat, Home, Sleep in)",
+        "Reminder(Sat, Home, Play Zelda)"
+      ],
+      "Sun": [
+        "Reminder(Sun, Home, Sleep in)",
+        "Reminder(Sun, Work, Reset database)"
+      ]
+    }
+    >>>
+    >>> print(dumps(groupify(reminders, ['when', 'where']),
+    ...             indent=2,
+    ...             sort_keys=True,
+    ...             default=repr)) # doctest: +NORMALIZE_WHITESPACE
+    {
+      "Fri": {
+        "Home": [
+          "Reminder(Fri, Home, Eat cereal)"
+        ],
+        "Work": [
+          "Reminder(Fri, Work, Feed Ivan)"
+        ]
+      },
+      "Sat": {
+        "Home": [
+          "Reminder(Sat, Home, Sleep in)",
+          "Reminder(Sat, Home, Play Zelda)"
+        ]
+      },
+      "Sun": {
+        "Home": [
+          "Reminder(Sun, Home, Sleep in)"
+        ],
+        "Work": [
+          "Reminder(Sun, Work, Reset database)"
+        ]
+      }
+    }
+    >>>
+    >>> print(dumps(groupify(reminders, ['when', 'where'], 'what'),
+    ...             indent=2,
+    ...             sort_keys=True)) # doctest: +NORMALIZE_WHITESPACE
+    {
+      "Fri": {
+        "Home": [
+          "Eat cereal"
+        ],
+        "Work": [
+          "Feed Ivan"
+        ]
+      },
+      "Sat": {
+        "Home": [
+          "Sleep in",
+          "Play Zelda"
+        ]
+      },
+      "Sun": {
+        "Home": [
+          "Sleep in"
+        ],
+        "Work": [
+          "Reset database"
+        ]
+      }
+    }
+    >>>
+    >>> print(dumps(groupify(reminders,
+    ...                      lambda r: '{0.when} - {0.where}'.format(r),
+    ...                      'what'),
+    ...             indent=2,
+    ...             sort_keys=True)) # doctest: +NORMALIZE_WHITESPACE
+    {
+      "Fri - Home": [
+        "Eat cereal"
+      ],
+      "Fri - Work": [
+        "Feed Ivan"
+      ],
+      "Sat - Home": [
+        "Sleep in",
+        "Play Zelda"
+      ],
+      "Sun - Home": [
+        "Sleep in"
+      ],
+      "Sun - Work": [
+        "Reset database"
+      ]
+    }
+
+    Args:
+        items (list): The list of items to arrange in groups.
+        keys (str|callable|list): The key or keys that should be used to group
+            `items`. If multiple keys are given, then each will correspond to
+            an additional level of nesting in the order they are given.
+        val_key (str|callable): A key or callable used to generate the leaf
+            values in the nested OrderedDicts. If `val_key` is `None`, then
+            the item itself is used. Defaults to `None`.
+
+    Returns:
+        OrderedDict: Nested OrderedDicts with `items` grouped by `keys`.
+
+    """
+    if not keys:
+        return items
+    keys = listify(keys)
+    last_key = keys[-1]
+    is_callable = callable(val_key)
+    groupified = OrderedDict()
+    for item in items:
+        current = groupified
+        for key in keys:
+            attr = key(item) if callable(key) else getattr(item, key)
+            if attr not in current:
+                current[attr] = [] if key is last_key else OrderedDict()
+            current = current[attr]
+        if val_key:
+            value = val_key(item) if is_callable else getattr(item, val_key)
+        else:
+            value = item
+        current.append(value)
+    return groupified
+
+
+class keydefaultdict(defaultdict):
+    """
+    A defaultdict that passes the missed key to the factory function.
+
+    >>> def echo_factory(missing_key):
+    ...     return missing_key
+    ...
+    >>> d = keydefaultdict(echo_factory)
+    >>> d['Hello World']
+    'Hello World'
+    >>> d['Hello World'] = 'Goodbye'
+    >>> d['Hello World']
+    'Goodbye'
+
+    """
+    def __missing__(self, key):
+        if self.default_factory is None:
+            raise KeyError(key)
+        else:
+            ret = self[key] = self.default_factory(key)
+            return ret
 
 
 def is_listy(x):
@@ -167,6 +371,48 @@ def mappify(x, default=True, cls=None):
     if cls and not (isclass(cls) and issubclass(type(x), cls)):
         x = cls(x)
     return x
+
+
+def nesteddefaultdict():
+    """
+    A defaultdict that returns nested defaultdicts as the default value.
+
+    Each defaultdict returned as the default value will also return nested
+    defaultdicts, and so on.
+
+    >>> nested = nesteddefaultdict()
+    >>> nested_child = nested['New Key 1']
+    >>> nested_child  # doctest: +ELLIPSIS
+    defaultdict(...)
+    >>> nested_grandchild = nested_child['New Key 2']
+    >>> nested_grandchild  # doctest: +ELLIPSIS
+    defaultdict(...)
+
+    """
+    return defaultdict(nesteddefaultdict)
+
+
+def readable_join(xs, conjunction='and', sep=','):
+    """
+    Accepts a list of strings and separates them with commas as grammatically
+    appropriate with a conjunction before the final entry. For example:
+
+    >>> readable_join(['foo'])
+    'foo'
+    >>> readable_join(['foo', 'bar'])
+    'foo and bar'
+    >>> readable_join(['foo', 'bar', 'baz'])
+    'foo, bar, and baz'
+    >>> readable_join(['foo', 'bar', 'baz'], 'or')
+    'foo, bar, or baz'
+    >>> readable_join(['foo', 'bar', 'baz'], 'but never')
+    'foo, bar, but never baz'
+
+    """
+    if len(xs) > 1:
+        xs = list(xs)
+        xs[-1] = conjunction + ' ' + xs[-1]
+    return (sep + ' ' if len(xs) > 2 else ' ').join(xs)
 
 
 def uniquify(x, cls=None):

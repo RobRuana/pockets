@@ -22,6 +22,15 @@ pockets.collections module
     :show-inheritance:
 
 
+pockets.datetime module
+--------------------------
+
+.. automodule:: pockets.datetime
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 pockets.inspect module
 ----------------------
 

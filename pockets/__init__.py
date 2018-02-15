@@ -8,12 +8,12 @@
 Functions available in the `pockets.*` submodules are also imported to the base
 package for easy access, so::
 
-    from pockets import camel, peek_iter, resolve
+    from pockets import camel, iterpeek, resolve
 
 works just as well as::
 
     from pockets.inspect import resolve
-    from pockets.iterators import peek_iter
+    from pockets.iterators import iterpeek
     from pockets.string import camel
 
 """
@@ -23,6 +23,7 @@ works just as well as::
 from __future__ import absolute_import
 from pockets._version import __version__
 from pockets.collections import *
+from pockets.datetime import *
 from pockets.decorators import *
 from pockets.inspect import *
 from pockets.iterators import *

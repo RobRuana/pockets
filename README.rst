@@ -68,8 +68,8 @@ the gap. Here are just a few examples...
 
 ::
 
-    >>> from pockets import peek_iter
-    >>> p = peek_iter(["a", "b", "c", "d", "e"])
+    >>> from pockets import iterpeek
+    >>> p = iterpeek(["a", "b", "c", "d", "e"])
     >>> p.peek()
     'a'
     >>> p.next()

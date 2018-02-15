@@ -8,7 +8,7 @@ An easy to import AutoLogger instance!
 >>> import logging, sys
 >>> logging.basicConfig(format="%(name)s: %(message)s", stream=sys.stdout)
 >>> from pockets.autolog import log
->>> log.error("Always log from the correct module.Class!")
+>>> log.error("Always log from the correct module.Class!") # doctest: +SKIP
 pockets.autolog: Always log from the correct module.Class!
 
 See Also:

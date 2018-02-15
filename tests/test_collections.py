@@ -10,7 +10,154 @@ from collections import defaultdict, deque, Sequence, Set
 import pytest
 import six
 from six import u
-from pockets.collections import is_listy, listify, mappify, uniquify
+
+from pockets.collections import groupify, keydefaultdict, is_listy, listify, \
+    mappify, nesteddefaultdict, readable_join, uniquify
+
+
+class Reminder:
+    def __init__(self, when, where, what):
+        self.when = when
+        self.where = where
+        self.what = what
+
+    def __repr__(self):
+        return 'Reminder({0.when}, {0.where}, {0.what})'.format(self)
+
+    def __eq__(self, value):
+        if not value:
+            return False
+        try:
+            return self.when == value.when \
+                and self.where == value.where \
+                and self.what == value.what
+        except AttributeError:
+            return False
+
+
+reminders = [
+    Reminder('Fri', 'Home', 'Eat cereal'),
+    Reminder('Fri', 'Work', 'Feed Ivan'),
+    Reminder('Sat', 'Home', 'Sleep in'),
+    Reminder('Sat', 'Home', 'Play Zelda'),
+    Reminder('Sun', 'Home', 'Sleep in'),
+    Reminder('Sun', 'Work', 'Reset database')]
+
+
+class TestKeydefaultdict(object):
+    def test_keydefaultdict(self):
+        def reverse_factory(missing_key):
+            return ''.join([s for s in reversed(missing_key)])
+
+        d = keydefaultdict(reverse_factory)
+        assert d['asdf'] == 'fdsa'
+        assert d['asdf'] == 'fdsa'
+
+        d['asdf'] = 'asdf'
+        assert d['asdf'] == 'asdf'
+        assert d['asdf'] == 'asdf'
+
+        assert d['fdsa'] == 'asdf'
+
+    def test_keydefaultdict_no_default_factory(self):
+        d = keydefaultdict()
+        pytest.raises(KeyError, d.__getitem__, 'asdf')
+
+
+class TestGroupify(object):
+
+    @pytest.mark.parametrize('items,keys,val_key,expected', [
+        (reminders, None, None, [
+            Reminder('Fri', 'Home', 'Eat cereal'),
+            Reminder('Fri', 'Work', 'Feed Ivan'),
+            Reminder('Sat', 'Home', 'Sleep in'),
+            Reminder('Sat', 'Home', 'Play Zelda'),
+            Reminder('Sun', 'Home', 'Sleep in'),
+            Reminder('Sun', 'Work', 'Reset database'),
+        ]),
+        (reminders, 'when', None, {
+            'Fri': [
+                Reminder('Fri', 'Home', 'Eat cereal'),
+                Reminder('Fri', 'Work', 'Feed Ivan'),
+            ],
+            'Sat': [
+                Reminder('Sat', 'Home', 'Sleep in'),
+                Reminder('Sat', 'Home', 'Play Zelda'),
+            ],
+            'Sun': [
+                Reminder('Sun', 'Home', 'Sleep in'),
+                Reminder('Sun', 'Work', 'Reset database'),
+            ]
+        }),
+        (reminders, ['when', 'where'], None, {
+            'Fri': {
+                'Home': [
+                    Reminder('Fri', 'Home', 'Eat cereal'),
+                ],
+                'Work': [
+                    Reminder('Fri', 'Work', 'Feed Ivan'),
+                ]
+            },
+            'Sat': {
+                'Home': [
+                    Reminder('Sat', 'Home', 'Sleep in'),
+                    Reminder('Sat', 'Home', 'Play Zelda'),
+                ]
+            },
+            'Sun': {
+                'Home': [
+                    Reminder('Sun', 'Home', 'Sleep in'),
+                ],
+                'Work': [
+                    Reminder('Sun', 'Work', 'Reset database'),
+                ]
+            }
+        }),
+        (reminders, ['when', 'where'], 'what', {
+            'Fri': {
+                'Home': [
+                    'Eat cereal'
+                ],
+                'Work': [
+                    'Feed Ivan'
+                ]
+            },
+            'Sat': {
+                'Home': [
+                    'Sleep in',
+                    'Play Zelda'
+                ]
+            },
+            'Sun': {
+                'Home': [
+                    'Sleep in'
+                ],
+                'Work': [
+                    'Reset database'
+                ]
+            }
+        }),
+        (reminders, lambda r: '{0.when} - {0.where}'.format(r), 'what', {
+            'Fri - Home': [
+                'Eat cereal'
+            ],
+            'Fri - Work': [
+                'Feed Ivan'
+            ],
+            'Sat - Home': [
+                'Sleep in',
+                'Play Zelda'
+            ],
+            'Sun - Home': [
+                'Sleep in'
+            ],
+            'Sun - Work': [
+                'Reset database'
+            ]
+        }),
+    ])
+    def test_groupify(self, items, keys, val_key, expected):
+        assert groupify(items, keys, val_key) == expected
 
 
 class TestIsListy(object):
@@ -249,6 +396,31 @@ class TestListify(object):
     def test_object(self):
         a = object()
         assert [a] == listify(a)
+
+
+class TestNesteddefaultdict(object):
+    def test_nesteddefaultdict(self):
+        d1 = nesteddefaultdict()
+        assert isinstance(d1, defaultdict)
+        d2 = d1['d']
+        assert isinstance(d2, defaultdict)
+        d3 = d2['d']
+        assert isinstance(d3, defaultdict)
+
+
+class TestReadableJoin(object):
+
+    @pytest.mark.parametrize('xs,args,expected', [
+        ([], [], ''),
+        (['foo'], [], 'foo'),
+        (['foo', 'bar'], [], 'foo and bar'),
+        (['foo', 'bar', 'baz'], [], 'foo, bar, and baz'),
+        (['foo', 'bar', 'baz'], ['or'], 'foo, bar, or baz'),
+        (['foo', 'bar', 'baz'], ['or', ';'], 'foo; bar; or baz'),
+        (['foo', 'bar', 'baz'], ['but never'], 'foo, bar, but never baz'),
+    ])
+    def test_readable_join(self, xs, args, expected):
+        assert readable_join(xs, *args) == expected
 
 
 class TestMappify(object):

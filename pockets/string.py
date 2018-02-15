@@ -11,43 +11,47 @@ import six
 from pockets.collections import listify
 
 
-__all__ = ['camel', 'uncamel', 'splitcaps', 'UnicodeMixin']
+__all__ = [
+    'camel', 'uncamel', 'fieldify', 'unfieldify', 'slug', 'splitcaps',
+    'UnicodeMixin']
 
 
 # Default regular expression flags
 if six.PY2:
-    _re_flags = re.L | re.M | re.U
+    RE_FLAGS = re.L | re.M | re.U
 else:
-    _re_flags = re.M | re.U
+    RE_FLAGS = re.M | re.U
 
-_whitespace_group_re = re.compile("(\s+)", _re_flags)
+RE_NONWORD = re.compile('[\W_]+')
 
-_uncamel_re = re.compile(
-    "("  # The whole expression is in a single group
+RE_SPLITCAPS = re.compile(
     # Clause 1
-    "(?<=[^\sA-Z])"  # Preceded by neither a space nor a capital letter
-    "[A-Z]+[^a-z\s]*"  # All non-lowercase beginning with a capital letter
-    "(?=[A-Z][^A-Z\s]*?[a-z]|\s|$)"  # Followed by a capitalized word
-    "|"
+    '[A-Z]+[^a-z]*'  # All non-lowercase beginning with a capital letter
+    '(?=[A-Z][^A-Z]*?[a-z]|$)'  # Followed by a capitalized word
+    '|'
     # Clause 2
-    "(?<=[^\s])"  # Preceded by a character that is not a space
-    "[A-Z][^A-Z\s]*?[a-z]+[^A-Z\s]*"  # Capitalized word
-    ")", _re_flags)
-
-_splitcaps_re = re.compile(
-    # Clause 1
-    "[A-Z]+[^a-z]*"  # All non-lowercase beginning with a capital letter
-    "(?=[A-Z][^A-Z]*?[a-z]|$)"  # Followed by a capitalized word
-    "|"
-    # Clause 2
-    "[A-Z][^A-Z]*?[a-z]+[^A-Z]*"  # Capitalized word
-    "|"
+    '[A-Z][^A-Z]*?[a-z]+[^A-Z]*'  # Capitalized word
+    '|'
     # Clause 3
-    "[^A-Z]+",  # All non-uppercase
-    _re_flags)
+    '[^A-Z]+',  # All non-uppercase
+    RE_FLAGS)
+
+RE_UNCAMEL = re.compile(
+    '('  # The whole expression is in a single group
+    # Clause 1
+    '(?<=[^\sA-Z])'  # Preceded by neither a space nor a capital letter
+    '[A-Z]+[^a-z\s]*'  # All non-lowercase beginning with a capital letter
+    '(?=[A-Z][^A-Z\s]*?[a-z]|\s|$)'  # Followed by a capitalized word
+    '|'
+    # Clause 2
+    '(?<=[^\s])'  # Preceded by a character that is not a space
+    '[A-Z][^A-Z\s]*?[a-z]+[^A-Z\s]*'  # Capitalized word
+    ')', RE_FLAGS)
+
+RE_WHITESPACE_GROUP = re.compile('(\s+)', RE_FLAGS)
 
 
-def camel(s, sep="_", lower_initial=False, upper_segments=None,
+def camel(s, sep='_', lower_initial=False, upper_segments=None,
           preserve_upper=False):
     """
     Convert underscore_separated string (aka snake_case) to CamelCase.
@@ -125,7 +129,7 @@ def camel(s, sep="_", lower_initial=False, upper_segments=None,
         lower_initial = listify(lower_initial)
     upper_segments = listify(upper_segments)
     result = []
-    for word in _whitespace_group_re.split(s):
+    for word in RE_WHITESPACE_GROUP.split(s):
         segments = [segment for segment in word.split(sep) if segment]
         count = len(segments)
         for i, segment in enumerate(segments):
@@ -150,7 +154,7 @@ def camel(s, sep="_", lower_initial=False, upper_segments=None,
     return "".join(result)
 
 
-def uncamel(s, sep="_"):
+def uncamel(s, sep='_'):
     """
     Convert CamelCase string to underscore_separated (aka snake_case).
 
@@ -187,7 +191,83 @@ def uncamel(s, sep="_"):
         str: uncamel_cased version of `s`.
 
     """
-    return _uncamel_re.sub(r'{0}\1'.format(sep), s).lower()
+    return RE_UNCAMEL.sub(r'{0}\1'.format(sep), s).lower()
+
+
+def fieldify(s, sep='_'):
+    """
+    Convert a string into a valid "field-like" variable name.
+
+    Converts `s` from camel case to underscores, and replaces all spaces and
+    non-word characters with `sep`:
+
+    >>> fieldify('The XmlHTTPRequest Contained, "DATA..."')
+    'the_xml_http_request_contained_data'
+
+    Args:
+        s (str): The string to fieldify.
+
+        sep (str): The string to use as a word separator in the returned field.
+            Defaults to '_'.
+
+    Returns:
+        str: The field version of `s`.
+
+    """
+    if not s:
+        return ''
+    return RE_NONWORD.sub(sep, uncamel(s)).strip(sep)
+
+
+def unfieldify(s, sep='_'):
+    """
+    Makes a best effort to reverse the algorithm from `fieldify`.
+
+    Replaces instances of `sep` in `s` with a space and converts the result to
+    title case:
+
+    >>> unfieldify('the_xml_http_request_contained_data')
+    'The Xml Http Request Contained Data'
+
+    Args:
+        s (str): The string to fieldify.
+
+        sep (str): The string to consider a word separator in `s`.
+            Defaults to '_'.
+
+    Returns:
+        str: The unfieldified version of `s`.
+
+    """
+    if not s:
+        return ''
+    s = s.strip(r'{0} '.format(sep))
+    return (' '.join([w for w in s.split(sep) if w])).title()
+
+
+def slug(s, sep='-'):
+    """
+    Convert a string into a "slug" suitable for use in a URL.
+
+    Converts `s` to lower case, and replaces all spaces and non-word
+    characters with `sep`:
+
+    >>> slug('The ANGRY Wizard Shouted, "HEY..."')
+    'the-angry-wizard-shouted-hey'
+
+    Args:
+        s (str): The string to convert into a slug.
+
+        sep (str): The string to use as a word separator in the slug.
+            Defaults to '-'.
+
+    Returns:
+        str: The slug version of `s`.
+
+    """
+    if not s:
+        return ''
+    return RE_NONWORD.sub(sep, s).lower().strip(sep)
 
 
 def splitcaps(s, pattern=None, maxsplit=None, flags=0):
@@ -258,13 +338,13 @@ def splitcaps(s, pattern=None, maxsplit=None, flags=0):
             maxsplit = -1
 
     if pattern:
-        pattern_re = re.compile(pattern, flags or _re_flags)
+        pattern_re = re.compile(pattern, flags or RE_FLAGS)
     else:
         pattern_re = None
 
     result = []
     post_maxsplit = []
-    for m in _splitcaps_re.finditer(s):
+    for m in RE_SPLITCAPS.finditer(s):
         if pattern_re:
             for segment in pattern_re.split(m.group()):
                 if segment:
