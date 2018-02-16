@@ -12,7 +12,7 @@ from pockets.collections import listify
 
 
 __all__ = [
-    'camel', 'uncamel', 'fieldify', 'unfieldify', 'slug', 'splitcaps',
+    'camel', 'uncamel', 'fieldify', 'unfieldify', 'sluggify', 'splitcaps',
     'UnicodeMixin']
 
 
@@ -245,14 +245,14 @@ def unfieldify(s, sep='_'):
     return (' '.join([w for w in s.split(sep) if w])).title()
 
 
-def slug(s, sep='-'):
+def sluggify(s, sep='-'):
     """
     Convert a string into a "slug" suitable for use in a URL.
 
     Converts `s` to lower case, and replaces all spaces and non-word
     characters with `sep`:
 
-    >>> slug('The ANGRY Wizard Shouted, "HEY..."')
+    >>> sluggify('The ANGRY Wizard Shouted, "HEY..."')
     'the-angry-wizard-shouted-hey'
 
     Args:
@@ -262,7 +262,7 @@ def slug(s, sep='-'):
             Defaults to '-'.
 
     Returns:
-        str: The slug version of `s`.
+        str: The sluggify version of `s`.
 
     """
     if not s:

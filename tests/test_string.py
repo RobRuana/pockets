@@ -11,7 +11,7 @@ import pytest
 import six
 from six import u
 
-from pockets.string import camel, uncamel, fieldify, unfieldify, slug, \
+from pockets.string import camel, uncamel, fieldify, unfieldify, sluggify, \
     splitcaps, UnicodeMixin
 
 
@@ -492,7 +492,7 @@ class TestUnfieldify(object):
         assert expected == unfieldify(s, sep)
 
 
-class TestSlug(object):
+class TestSluggify(object):
 
     @pytest.mark.parametrize('s,sep,expected', [
         (None, '', ''),
@@ -508,8 +508,8 @@ class TestSlug(object):
         ('Q TAsdf . . Q . . TAsdf Q', '-', 'q-tasdf-q-tasdf-q'),
         ('TAZxcv . . Qwer . . TA', '-', 'tazxcv-qwer-ta'),
     ])
-    def test_slug(self, s, sep, expected):
-        assert expected == slug(s, sep)
+    def test_sluggify(self, s, sep, expected):
+        assert expected == sluggify(s, sep)
 
 
 class TestSplitcaps(object):
