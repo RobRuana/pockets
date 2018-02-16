@@ -3,6 +3,12 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.6.1 (2018-02-16)
+--------------------------
+
+ * Renames pockets.string.slug -> sluggify
+
+
 Version 0.6 (2018-02-15)
 ------------------------
 
