@@ -3,6 +3,12 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.6.2 (2018-03-02)
+--------------------------
+
+ * Update pockets.collections.readable_join() to ignore whitespace strings
+
+
 Version 0.6.1 (2018-02-16)
 --------------------------
 
