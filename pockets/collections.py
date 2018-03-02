@@ -395,7 +395,8 @@ def nesteddefaultdict():
 def readable_join(xs, conjunction='and', sep=','):
     """
     Accepts a list of strings and separates them with commas as grammatically
-    appropriate with a conjunction before the final entry. For example:
+    appropriate with a conjunction before the final entry. Any input strings
+    containing only whitespace will not be included in the result.
 
     >>> readable_join(['foo'])
     'foo'
@@ -403,12 +404,15 @@ def readable_join(xs, conjunction='and', sep=','):
     'foo and bar'
     >>> readable_join(['foo', 'bar', 'baz'])
     'foo, bar, and baz'
+    >>> readable_join(['foo', '  ', '', 'bar', '', '  ', 'baz'])
+    'foo, bar, and baz'
     >>> readable_join(['foo', 'bar', 'baz'], 'or')
     'foo, bar, or baz'
     >>> readable_join(['foo', 'bar', 'baz'], 'but never')
     'foo, bar, but never baz'
 
     """
+    xs = [s for s in map(lambda s: str(s).strip(), listify(xs)) if s]
     if len(xs) > 1:
         xs = list(xs)
         xs[-1] = conjunction + ' ' + xs[-1]

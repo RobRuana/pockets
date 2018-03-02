@@ -415,6 +415,7 @@ class TestReadableJoin(object):
         (['foo'], [], 'foo'),
         (['foo', 'bar'], [], 'foo and bar'),
         (['foo', 'bar', 'baz'], [], 'foo, bar, and baz'),
+        (['foo', '  ', '', 'bar', '', '  ', 'baz'], [], 'foo, bar, and baz'),
         (['foo', 'bar', 'baz'], ['or'], 'foo, bar, or baz'),
         (['foo', 'bar', 'baz'], ['or', ';'], 'foo; bar; or baz'),
         (['foo', 'bar', 'baz'], ['but never'], 'foo, bar, but never baz'),
