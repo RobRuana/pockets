@@ -4,7 +4,7 @@
 
 """A pocket full of useful decorators!"""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 import inspect
 from functools import wraps
 

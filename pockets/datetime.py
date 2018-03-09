@@ -4,7 +4,7 @@
 
 """A pocket full of useful datetime tools!"""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 import sys
 from datetime import datetime, timedelta
 

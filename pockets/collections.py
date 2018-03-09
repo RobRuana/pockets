@@ -4,7 +4,7 @@
 
 """A pocket full of useful collection tools!"""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 from collections import defaultdict, Iterable, Mapping, Sized
 from inspect import isclass
 
@@ -30,7 +30,10 @@ def groupify(items, keys, val_key=None):
         On Python 2.6 the return value will use regular dicts instead of
         OrderedDicts.
 
+    >>> from __future__ import print_function
     >>> from json import dumps
+    >>>
+    >>> ex = lambda x: print(dumps(x, indent=2, sort_keys=True, default=repr))
     >>>
     >>> class Reminder:
     ...   def __init__(self, when, where, what):
@@ -48,23 +51,7 @@ def groupify(items, keys, val_key=None):
     ...   Reminder('Sun', 'Home', 'Sleep in'),
     ...   Reminder('Sun', 'Work', 'Reset database')]
     >>>
-    >>> print(dumps(groupify(reminders, None),
-    ...             indent=2,
-    ...             sort_keys=True,
-    ...             default=repr)) # doctest: +NORMALIZE_WHITESPACE
-    [
-      "Reminder(Fri, Home, Eat cereal)",
-      "Reminder(Fri, Work, Feed Ivan)",
-      "Reminder(Sat, Home, Sleep in)",
-      "Reminder(Sat, Home, Play Zelda)",
-      "Reminder(Sun, Home, Sleep in)",
-      "Reminder(Sun, Work, Reset database)"
-    ]
-    >>>
-    >>> print(dumps(groupify(reminders, 'when'),
-    ...             indent=2,
-    ...             sort_keys=True,
-    ...             default=repr)) # doctest: +NORMALIZE_WHITESPACE
+    >>> ex(groupify(reminders, 'when'))  # doctest: +NORMALIZE_WHITESPACE
     {
       "Fri": [
         "Reminder(Fri, Home, Eat cereal)",
@@ -80,10 +67,7 @@ def groupify(items, keys, val_key=None):
       ]
     }
     >>>
-    >>> print(dumps(groupify(reminders, ['when', 'where']),
-    ...             indent=2,
-    ...             sort_keys=True,
-    ...             default=repr)) # doctest: +NORMALIZE_WHITESPACE
+    >>> ex(groupify(reminders, ['when', 'where']))  # doctest: +NORMALIZE_WHITESPACE
     {
       "Fri": {
         "Home": [
@@ -109,9 +93,7 @@ def groupify(items, keys, val_key=None):
       }
     }
     >>>
-    >>> print(dumps(groupify(reminders, ['when', 'where'], 'what'),
-    ...             indent=2,
-    ...             sort_keys=True)) # doctest: +NORMALIZE_WHITESPACE
+    >>> ex(groupify(reminders, ['when', 'where'], 'what'))  # doctest: +NORMALIZE_WHITESPACE
     {
       "Fri": {
         "Home": [
@@ -137,11 +119,7 @@ def groupify(items, keys, val_key=None):
       }
     }
     >>>
-    >>> print(dumps(groupify(reminders,
-    ...                      lambda r: '{0.when} - {0.where}'.format(r),
-    ...                      'what'),
-    ...             indent=2,
-    ...             sort_keys=True)) # doctest: +NORMALIZE_WHITESPACE
+    >>> ex(groupify(reminders, lambda r: '{0.when} - {0.where}'.format(r), 'what'))  # doctest: +NORMALIZE_WHITESPACE
     {
       "Fri - Home": [
         "Eat cereal"
@@ -173,7 +151,8 @@ def groupify(items, keys, val_key=None):
     Returns:
         OrderedDict: Nested OrderedDicts with `items` grouped by `keys`.
 
-    """
+    """  # noqa: E501
+
     if not keys:
         return items
     keys = listify(keys)

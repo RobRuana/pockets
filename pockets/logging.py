@@ -10,7 +10,7 @@ The `pockets.logging` module adds a `logging.TRACE` level and a
 level than `logging.DEBUG`.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 import inspect
 import logging
 import logging.config

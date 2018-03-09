@@ -4,7 +4,7 @@
 
 """A pocket full of useful string manipulation tools!"""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 import re
 import six
 

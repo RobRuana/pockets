@@ -15,7 +15,7 @@ See Also:
     `pockets.logger.AutoLogger`
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 from pockets.logging import AutoLogger
 
 

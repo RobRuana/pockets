@@ -4,7 +4,7 @@
 
 """Tests for :mod:`pockets.decorators` module."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 import pytest
 
 from pockets.decorators import argmod, cached_classproperty, cached_property, \

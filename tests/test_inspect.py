@@ -4,7 +4,7 @@
 
 """Tests for :mod:`pockets.inspect` module."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 import sys
 from functools import wraps
 

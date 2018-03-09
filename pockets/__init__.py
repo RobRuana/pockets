@@ -20,7 +20,7 @@ works just as well as::
 
 # flake8: noqa
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 from pockets._version import __version__
 from pockets.collections import *
 from pockets.datetime import *
