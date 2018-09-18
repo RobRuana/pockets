@@ -219,6 +219,15 @@ def resolve(name, modules=None):
 
     for path in search_paths:
         try:
+            # Import the most deeply nested module available
+            module_path = path[:-1]
+            while module_path:
+                try:
+                    __import__('.'.join(module_path))
+                except ImportError:
+                    module_path = module_path[:-1]
+                else:
+                    break
             obj = functools.reduce(getattr, path[1:], __import__(path[0]))
         except (AttributeError, ImportError):
             pass

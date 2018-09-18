@@ -240,6 +240,11 @@ class TestResolve(object):
         pytest.raises(ValueError, resolve, 'NOTFOUND', ['pockets'])
         pytest.raises(ValueError, resolve, 'NOTFOUND', ['pockets', 're'])
 
+    def test_deeply_nested(self):
+        assert resolve(
+            'tests.deeply.nested.module.DeeplyNestedClass.class_attr'
+        ) == 'class_attr'
+
 
 def wraps_decorator(func):
     @wraps(func)
