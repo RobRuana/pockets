@@ -22,33 +22,33 @@ if six.PY2:
 else:
     RE_FLAGS = re.M | re.U
 
-RE_NONWORD = re.compile('[\W_]+')
+RE_NONWORD = re.compile(r'[\W_]+')
 
 RE_SPLITCAPS = re.compile(
     # Clause 1
-    '[A-Z]+[^a-z]*'  # All non-lowercase beginning with a capital letter
-    '(?=[A-Z][^A-Z]*?[a-z]|$)'  # Followed by a capitalized word
-    '|'
+    r'[A-Z]+[^a-z]*'  # All non-lowercase beginning with a capital letter
+    r'(?=[A-Z][^A-Z]*?[a-z]|$)'  # Followed by a capitalized word
+    r'|'
     # Clause 2
-    '[A-Z][^A-Z]*?[a-z]+[^A-Z]*'  # Capitalized word
-    '|'
+    r'[A-Z][^A-Z]*?[a-z]+[^A-Z]*'  # Capitalized word
+    r'|'
     # Clause 3
-    '[^A-Z]+',  # All non-uppercase
+    r'[^A-Z]+',  # All non-uppercase
     RE_FLAGS)
 
 RE_UNCAMEL = re.compile(
-    '('  # The whole expression is in a single group
+    r'('  # The whole expression is in a single group
     # Clause 1
-    '(?<=[^\sA-Z])'  # Preceded by neither a space nor a capital letter
-    '[A-Z]+[^a-z\s]*'  # All non-lowercase beginning with a capital letter
-    '(?=[A-Z][^A-Z\s]*?[a-z]|\s|$)'  # Followed by a capitalized word
-    '|'
+    r'(?<=[^\sA-Z])'  # Preceded by neither a space nor a capital letter
+    r'[A-Z]+[^a-z\s]*'  # All non-lowercase beginning with a capital letter
+    r'(?=[A-Z][^A-Z\s]*?[a-z]|\s|$)'  # Followed by a capitalized word
+    r'|'
     # Clause 2
-    '(?<=[^\s])'  # Preceded by a character that is not a space
-    '[A-Z][^A-Z\s]*?[a-z]+[^A-Z\s]*'  # Capitalized word
-    ')', RE_FLAGS)
+    r'(?<=[^\s])'  # Preceded by a character that is not a space
+    r'[A-Z][^A-Z\s]*?[a-z]+[^A-Z\s]*'  # Capitalized word
+    r')', RE_FLAGS)
 
-RE_WHITESPACE_GROUP = re.compile('(\s+)', RE_FLAGS)
+RE_WHITESPACE_GROUP = re.compile(r'(\s+)', RE_FLAGS)
 
 
 def camel(s, sep='_', lower_initial=False, upper_segments=None,
@@ -303,9 +303,9 @@ def splitcaps(s, pattern=None, maxsplit=None, flags=0):
 
     >>> splitcaps("Without whiteSpace pattern")
     ['Without white', 'Space pattern']
-    >>> splitcaps("With whiteSpace pattern", pattern="\s+")
+    >>> splitcaps("With whiteSpace pattern", pattern=r"\s+")
     ['With', 'white', 'Space', 'pattern']
-    >>> splitcaps("With whiteSpace group", pattern="(\s+)")
+    >>> splitcaps("With whiteSpace group", pattern=r"(\s+)")
     ['With', ' ', 'white', 'Space', ' ', 'group']
 
     Args:

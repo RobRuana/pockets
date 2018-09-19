@@ -5,7 +5,12 @@
 """A pocket full of useful collection tools!"""
 
 from __future__ import absolute_import, print_function
-from collections import defaultdict, Iterable, Mapping, Sized
+from collections import defaultdict
+try:
+    from collections.abc import Iterable, Mapping, Sized
+except ImportError:
+    from collections import Iterable, Mapping, Sized
+
 from inspect import isclass
 
 import six

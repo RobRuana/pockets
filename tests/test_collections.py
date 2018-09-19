@@ -5,7 +5,11 @@
 """Tests for :mod:`pockets.collections` module."""
 
 from __future__ import absolute_import, print_function
-from collections import defaultdict, deque, Sequence, Set
+from collections import defaultdict, deque
+try:
+    from collections.abc import Sequence, Set
+except ImportError:
+    from collections import Sequence, Set
 
 import pytest
 import six

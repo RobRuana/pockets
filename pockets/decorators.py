@@ -40,7 +40,10 @@ def argmod(*args):
     modifier_func = args[-1]
 
     def _decorator(func):
-        argspec = inspect.getargspec(unwrap(func))
+        try:
+            argspec = inspect.getfullargspec(unwrap(func))
+        except AttributeError:
+            argspec = inspect.getargspec(unwrap(func))
         if to_param not in argspec.args:
             return func
         arg_index = argspec.args.index(to_param)
