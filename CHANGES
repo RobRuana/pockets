@@ -3,6 +3,12 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.6.4 (2018-09-19)
+--------------------------
+
+ * Fixes Python 3.7 deprecation warnings
+
+
 Version 0.6.3 (2018-09-18)
 --------------------------
 
