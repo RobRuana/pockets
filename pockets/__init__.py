@@ -19,7 +19,8 @@ works just as well as::
 """
 
 from __future__ import absolute_import, print_function
+import sys
 from pockets.inspect import hoist_submodules
 
 
-hoist_submodules(__name__)
+hoist_submodules(sys.modules[__name__])
