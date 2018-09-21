@@ -114,7 +114,7 @@ def collect_superclass_attr_names(cls, terminal_class=None, modules=None):
     return list(attr_names)
 
 
-def hoist_submodules(package):
+def hoist_submodules(package, extend_all=True):
     """
     Sets `__all__` attrs from submodules of `package` as attrs on `package`.
 
@@ -129,11 +129,25 @@ def hoist_submodules(package):
     Args:
         package (str or module): The parent package into which submodule
             exports should be hoisted.
+        extend_all (bool): If True, the `package.__all__` will be extended
+            to include the hoisted attributes. Defaults to True.
+
+    Returns:
+        list: List of all hoisted attribute names.
 
     """
     module = resolve(package)
+    hoisted_attrs = []
     for submodule in import_submodules(module):
-        import_star(module, submodule)
+        hoisted_attrs.extend(import_star(module, submodule))
+
+    if extend_all:
+        if getattr(module, '__all__', None) is None:
+            module.__all__ = list(hoisted_attrs)
+        else:
+            module.__all__.extend(hoisted_attrs)
+
+    return hoisted_attrs
 
 
 def import_star(to_module, from_module):
@@ -154,11 +168,16 @@ def import_star(to_module, from_module):
         from_module (str or module): The module from which a wildcard import
             should be done.
 
+    Returns:
+        list: List of all imported attribute names.
+
     """
     to_module = resolve(to_module)
     from_module = resolve(from_module)
-    for attr in getattr(from_module, '__all__', []):
+    attrs = getattr(from_module, '__all__', [])
+    for attr in attrs:
         setattr(to_module, attr, getattr(from_module, attr))
+    return attrs
 
 
 def import_submodules(package):
@@ -219,7 +238,7 @@ def resolve(name, modules=None):
 
     >>> resolve("calendar.TextCalendar")
     <class 'calendar.TextCalendar'>
-    >>> resolve(object()) #doctest: +ELLIPSIS
+    >>> resolve(object())
     <object object at 0x...>
 
     If `modules` is specified, then resolution of `name` is restricted
@@ -243,12 +262,12 @@ def resolve(name, modules=None):
 
     Restricting `name` resolution to a set of `modules`:
 
-    >>> resolve("pockets.camel") #doctest: +ELLIPSIS
+    >>> resolve("pockets.camel")
     <function camel at 0x...>
-    >>> resolve("pockets.camel", modules=["re", "six"]) #doctest: +ELLIPSIS
+    >>> resolve("pockets.camel", modules=["re", "six"])
     Traceback (most recent call last):
-      ...
     ValueError: Unable to resolve 'pockets.camel' in modules: ['re', 'six']
+      ...
 
     Args:
         name (str or object): A dotted name.
@@ -292,19 +311,21 @@ def resolve(name, modules=None):
             search_paths.append(obj_path)
             search_paths.append(module_path + obj_path)
 
+    exceptions = []
     for path in search_paths:
         # Import the most deeply nested module available
         module = None
         module_path = []
-        obj_path = []
-        while path:
-            module_name = path.pop(0)
+        obj_path = list(path)
+        while obj_path:
+            module_name = obj_path.pop(0)
             if isinstance(module_name, string_types):
                 package = '.'.join(module_path + [module_name])
                 try:
                     module = __import__(package, fromlist=module_name)
-                except ImportError:
-                    obj_path = [module_name] + path
+                except ImportError as e:
+                    exceptions.append(e)
+                    obj_path = [module_name] + obj_path
                     break
                 else:
                     module_path.append(module_name)
@@ -316,13 +337,33 @@ def resolve(name, modules=None):
             if obj_path:
                 try:
                     return functools.reduce(getattr, obj_path, module)
-                except AttributeError:
-                    pass
+                except AttributeError as e:
+                    exceptions.append(e)
             else:
                 return module
 
-    raise ValueError(
-        "Unable to resolve '{0}' in modules: {1}".format(name, modules))
+    if modules:
+        msg = "Unable to resolve '{0}' in modules: {1}".format(name, modules)
+    else:
+        msg = "Unable to resolve '{0}'".format(name)
+
+    if exceptions:
+        if six.PY2:
+            msgs = ['{0}: {1}'.format(type(e).__name__, e) for e in exceptions]
+            raise ValueError('\n  '.join([msg] + msgs))
+        else:
+            chained_e = None
+            for e in exceptions:
+                if chained_e:
+                    try:
+                        six.raise_from(e, chained_e)
+                    except Exception as new_chained_e:
+                        chained_e = new_chained_e
+                else:
+                    chained_e = e
+            six.raise_from(ValueError(msg), chained_e)
+    else:
+        raise ValueError(msg)
 
 
 def unwrap(func):

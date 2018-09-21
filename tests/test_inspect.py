@@ -145,6 +145,7 @@ class TestHoistSubmodules(object):
     def test_pockets_hoist(self):
         import pockets
         assert pockets.camel
+        assert 'camel' in pockets.__all__
 
 
 class TestResolve(object):

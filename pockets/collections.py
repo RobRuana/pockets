@@ -56,7 +56,7 @@ def groupify(items, keys, val_key=None):
     ...   Reminder('Sun', 'Home', 'Sleep in'),
     ...   Reminder('Sun', 'Work', 'Reset database')]
     >>>
-    >>> ex(groupify(reminders, 'when'))  # doctest: +NORMALIZE_WHITESPACE
+    >>> ex(groupify(reminders, 'when'))
     {
       "Fri": [
         "Reminder(Fri, Home, Eat cereal)",
@@ -72,7 +72,7 @@ def groupify(items, keys, val_key=None):
       ]
     }
     >>>
-    >>> ex(groupify(reminders, ['when', 'where']))  # doctest: +NORMALIZE_WHITESPACE
+    >>> ex(groupify(reminders, ['when', 'where']))
     {
       "Fri": {
         "Home": [
@@ -98,7 +98,7 @@ def groupify(items, keys, val_key=None):
       }
     }
     >>>
-    >>> ex(groupify(reminders, ['when', 'where'], 'what'))  # doctest: +NORMALIZE_WHITESPACE
+    >>> ex(groupify(reminders, ['when', 'where'], 'what'))
     {
       "Fri": {
         "Home": [
@@ -124,7 +124,7 @@ def groupify(items, keys, val_key=None):
       }
     }
     >>>
-    >>> ex(groupify(reminders, lambda r: '{0.when} - {0.where}'.format(r), 'what'))  # doctest: +NORMALIZE_WHITESPACE
+    >>> ex(groupify(reminders, lambda r: '{0.when} - {0.where}'.format(r), 'what'))
     {
       "Fri - Home": [
         "Eat cereal"
@@ -366,10 +366,10 @@ def nesteddefaultdict():
 
     >>> nested = nesteddefaultdict()
     >>> nested_child = nested['New Key 1']
-    >>> nested_child  # doctest: +ELLIPSIS
+    >>> nested_child
     defaultdict(...)
     >>> nested_grandchild = nested_child['New Key 2']
-    >>> nested_grandchild  # doctest: +ELLIPSIS
+    >>> nested_grandchild
     defaultdict(...)
 
     """
