@@ -17,8 +17,8 @@ from six import string_types
 
 __all__ = [
     'collect_subclasses', 'collect_superclasses',
-    'collect_superclass_attr_names', 'hoist_submodules', 'import_submodules',
-    'is_data', 'resolve', 'unwrap']
+    'collect_superclass_attr_names', 'hoist_submodules', 'import_star',
+    'import_submodules', 'is_data', 'resolve', 'unwrap']
 
 
 def collect_subclasses(cls):
@@ -119,8 +119,8 @@ def hoist_submodules(package):
     Sets `__all__` attrs from submodules of `package` as attrs on `package`.
 
     Note:
-        This only considers attrs exported by `__all__`. If a submodule does
-        not define `__all__`, then it is ignored.
+        This only considers attributes exported by `__all__`. If a submodule
+        does not define `__all__`, then it is ignored.
 
     Effectively does::
 
@@ -133,13 +133,37 @@ def hoist_submodules(package):
     """
     module = resolve(package)
     for submodule in import_submodules(module):
-        for attr in getattr(submodule, '__all__', []):
-            setattr(module, attr, getattr(submodule, attr))
+        import_star(module, submodule)
+
+
+def import_star(to_module, from_module):
+    """
+    Imports all exported attributes of `from_module` into `to_module`.
+
+    Note:
+        This only considers attributes exported by `__all__`. If `from_module`
+        does not define `__all__`, then nothing is imported.
+
+    Effectively does::
+
+        from from_module import *
+
+    Args:
+        to_module (str or module): The module into which the attributes
+            are imported.
+        from_module (str or module): The module from which a wildcard import
+            should be done.
+
+    """
+    to_module = resolve(to_module)
+    from_module = resolve(from_module)
+    for attr in getattr(from_module, '__all__', []):
+        setattr(to_module, attr, getattr(from_module, attr))
 
 
 def import_submodules(package):
     """
-    Imports all submodules of package.
+    Imports all submodules of `package`.
 
     Effectively does::
 
@@ -150,11 +174,11 @@ def import_submodules(package):
             should be imported.
 
     Yields:
-        module: The next submodule of package.
+        module: The next submodule of `package`.
 
     """
     module = resolve(package)
-    if basename(module.__file__) == '__init__.py':
+    if basename(module.__file__).startswith('__init__.py'):
         for _, submodule_name, _ in iter_modules(module.__path__):
             yield resolve(submodule_name, module)
 

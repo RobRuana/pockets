@@ -141,6 +141,12 @@ class TestIsData(object):
         assert not is_data(docobj.clsmeth)
 
 
+class TestHoistSubmodules(object):
+    def test_pockets_hoist(self):
+        import pockets
+        assert pockets.camel
+
+
 class TestResolve(object):
     def test_none(self):
         assert resolve(None) is None
