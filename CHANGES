@@ -3,6 +3,12 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.6.7 (2018-09-21)
+--------------------------
+
+ * Adds pockets.inspect.import_star()
+
+
 Version 0.6.6 (2018-09-21)
 --------------------------
 
