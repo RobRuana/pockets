@@ -265,33 +265,33 @@ def resolve(name, modules=None):
             search_paths.append(module_path + obj_path)
 
     for path in search_paths:
-        try:
-            # Import the most deeply nested module available
-            module = None
-            module_path = []
-            obj_path = []
-            while path:
-                module_name = path.pop(0)
-                if isinstance(module_name, string_types):
-                    package = '.'.join(module_path + [module_name])
-                    try:
-                        module = __import__(package, fromlist=module_name)
-                    except ImportError as e:
-                        obj_path = [module_name] + path
-                        break
-                    else:
-                        module_path.append(module_name)
+        # Import the most deeply nested module available
+        module = None
+        module_path = []
+        obj_path = []
+        while path:
+            module_name = path.pop(0)
+            if isinstance(module_name, string_types):
+                package = '.'.join(module_path + [module_name])
+                try:
+                    module = __import__(package, fromlist=module_name)
+                except ImportError:
+                    obj_path = [module_name] + path
+                    break
                 else:
-                    module = module_name
-                    module_path.append(module.__name__)
+                    module_path.append(module_name)
+            else:
+                module = module_name
+                module_path.append(module.__name__)
 
-            if module:
-                if obj_path:
+        if module:
+            if obj_path:
+                try:
                     return functools.reduce(getattr, obj_path, module)
-                else:
-                    return module
-        except AttributeError:
-            pass
+                except AttributeError:
+                    pass
+            else:
+                return module
 
     raise ValueError(
         "Unable to resolve '{0}' in modules: {1}".format(name, modules))
