@@ -118,6 +118,10 @@ def hoist_submodules(package):
     """
     Sets `__all__` attrs from submodules of `package` as attrs on `package`.
 
+    Note:
+        This only considers attrs exported by `__all__`. If a submodule does
+        not define `__all__`, then it is ignored.
+
     Effectively does::
 
         from package.* import *
@@ -142,8 +146,8 @@ def import_submodules(package):
         __import__(package.*)
 
     Args:
-        package (str or module): The parent package from which submodule
-            exports should be hoisted.
+        package (str or module): The parent package from which submodules
+            should be imported.
 
     Yields:
         module: The next submodule of package.
