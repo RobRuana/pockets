@@ -3,6 +3,13 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.6.8 (2018-09-21)
+--------------------------
+
+ * Better exception reporting in pockets.inspect.resolve()
+ * pockets.inspect.hoist_submodules() now updates parent __all__ by default
+
+
 Version 0.6.7 (2018-09-21)
 --------------------------
 
