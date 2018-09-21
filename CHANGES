@@ -3,6 +3,12 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.6.6 (2018-09-21)
+--------------------------
+
+ * More restrictive error handling in pockets.inspect.resolve()
+
+
 Version 0.6.5 (2018-09-21)
 --------------------------
 
