@@ -18,14 +18,8 @@ works just as well as::
 
 """
 
-# flake8: noqa
-
 from __future__ import absolute_import, print_function
-from pockets._version import __version__
-from pockets.collections import *
-from pockets.datetime import *
-from pockets.decorators import *
-from pockets.inspect import *
-from pockets.iterators import *
-from pockets.logging import *
-from pockets.string import *
+from pockets.inspect import hoist_submodules
+
+
+hoist_submodules(__name__)

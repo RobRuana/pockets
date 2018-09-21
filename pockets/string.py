@@ -299,13 +299,13 @@ def splitcaps(s, pattern=None, maxsplit=None, flags=0):
     ['lower case words']
 
     Does not split on whitespace by default. To also split
-    on whitespace, pass "\\\s+" for `pattern`:
+    on whitespace, pass "\\\\s+" for `pattern`:
 
     >>> splitcaps("Without whiteSpace pattern")
     ['Without white', 'Space pattern']
-    >>> splitcaps("With whiteSpace pattern", pattern=r"\s+")
+    >>> splitcaps("With whiteSpace pattern", pattern=r"\\s+")
     ['With', 'white', 'Space', 'pattern']
-    >>> splitcaps("With whiteSpace group", pattern=r"(\s+)")
+    >>> splitcaps("With whiteSpace group", pattern=r"(\\s+)")
     ['With', ' ', 'white', 'Space', ' ', 'group']
 
     Args:

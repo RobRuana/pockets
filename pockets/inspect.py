@@ -7,6 +7,8 @@
 from __future__ import absolute_import, print_function
 import inspect
 import functools
+from os.path import basename
+from pkgutil import iter_modules
 
 import six
 from pockets.collections import listify
@@ -15,7 +17,8 @@ from six import string_types
 
 __all__ = [
     'collect_subclasses', 'collect_superclasses',
-    'collect_superclass_attr_names', 'is_data', 'resolve', 'unwrap']
+    'collect_superclass_attr_names', 'hoist_submodules', 'import_submodules',
+    'is_data', 'resolve', 'unwrap']
 
 
 def collect_subclasses(cls):
@@ -111,6 +114,47 @@ def collect_superclass_attr_names(cls, terminal_class=None, modules=None):
     return list(attr_names)
 
 
+def hoist_submodules(package):
+    """
+    Sets `__all__` attrs from submodules of `package` as attrs on `package`.
+
+    Effectively does::
+
+        from package.* import *
+
+    Args:
+        package (str or module): The parent package into which submodule
+            exports should be hoisted.
+
+    """
+    module = resolve(package)
+    for submodule in import_submodules(module):
+        for attr in getattr(submodule, '__all__', []):
+            setattr(module, attr, getattr(submodule, attr))
+
+
+def import_submodules(package):
+    """
+    Imports all submodules of package.
+
+    Effectively does::
+
+        __import__(package.*)
+
+    Args:
+        package (str or module): The parent package from which submodule
+            exports should be hoisted.
+
+    Yields:
+        module: The next submodule of package.
+
+    """
+    module = resolve(package)
+    if basename(module.__file__) == '__init__.py':
+        for _, submodule_name, _ in iter_modules(module.__path__):
+            yield resolve(submodule_name, module)
+
+
 def is_data(obj):
     """
     Returns True if `obj` is a "data like" object.
@@ -181,8 +225,8 @@ def resolve(name, modules=None):
     Args:
         name (str or object): A dotted name.
 
-        modules (str or list, optional): A module or list of modules, under
-            which to search for `name`.
+        modules (str, module, or list, optional): A module or list of modules,
+            under which to search for `name`.
 
     Returns:
         object: The object specified by `name`.
@@ -200,7 +244,10 @@ def resolve(name, modules=None):
         while not obj_path[0]:
             obj_path.pop(0)
         for module_path in listify(modules):
-            search_paths.append(module_path.split('.') + obj_path)
+            if isinstance(module_path, string_types):
+                search_paths.append(module_path.split('.') + obj_path)
+            else:
+                search_paths.append([module_path] + obj_path)
     else:
         caller = inspect.getouterframes(inspect.currentframe())[1][0].f_globals
         module_path = caller['__name__'].split('.')
@@ -220,19 +267,31 @@ def resolve(name, modules=None):
     for path in search_paths:
         try:
             # Import the most deeply nested module available
-            module_path = path[:-1]
-            while module_path:
-                try:
-                    __import__('.'.join(module_path))
-                except ImportError:
-                    module_path = module_path[:-1]
+            module = None
+            module_path = []
+            obj_path = []
+            while path:
+                module_name = path.pop(0)
+                if isinstance(module_name, string_types):
+                    package = '.'.join(module_path + [module_name])
+                    try:
+                        module = __import__(package, fromlist=module_name)
+                    except ImportError as e:
+                        obj_path = [module_name] + path
+                        break
+                    else:
+                        module_path.append(module_name)
                 else:
-                    break
-            obj = functools.reduce(getattr, path[1:], __import__(path[0]))
-        except (AttributeError, ImportError):
+                    module = module_name
+                    module_path.append(module.__name__)
+
+            if module:
+                if obj_path:
+                    return functools.reduce(getattr, obj_path, module)
+                else:
+                    return module
+        except AttributeError:
             pass
-        else:
-            return obj
 
     raise ValueError(
         "Unable to resolve '{0}' in modules: {1}".format(name, modules))

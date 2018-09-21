@@ -157,20 +157,13 @@ class TestResolve(object):
         assert resolve('TestResolve', 'tests.test_inspect') is self.__class__
         pytest.raises(ValueError, resolve, 'TestResolve', 'pockets')
 
+    def test_modules_module(self):
+        assert resolve('iterators', pockets) is pockets.iterators
+
     def test_modules_none(self):
         assert resolve('pockets') is pockets
         assert resolve('pockets.iterators') is pockets.iterators
         assert resolve('pockets.iterators.iterpeek') is \
-            pockets.iterators.iterpeek
-
-    def test_modules_string(self):
-        sock = __import__('socket')
-        assert resolve('socket') is sock
-        assert resolve('getfqdn', 'socket') is sock.getfqdn
-        assert resolve('iterators', 'pockets') is pockets.iterators
-        assert resolve('iterpeek', 'pockets.iterators') is \
-            pockets.iterators.iterpeek
-        assert resolve('iterators.iterpeek', 'pockets') is \
             pockets.iterators.iterpeek
 
     def test_modules_list(self):
@@ -190,6 +183,16 @@ class TestResolve(object):
             pockets.iterators.iterpeek
         assert resolve(
             'iterators.iterpeek', ['pockets.iterators', 'pockets']) is \
+            pockets.iterators.iterpeek
+
+    def test_modules_string(self):
+        sock = __import__('socket')
+        assert resolve('socket') is sock
+        assert resolve('getfqdn', 'socket') is sock.getfqdn
+        assert resolve('iterators', 'pockets') is pockets.iterators
+        assert resolve('iterpeek', 'pockets.iterators') is \
+            pockets.iterators.iterpeek
+        assert resolve('iterators.iterpeek', 'pockets') is \
             pockets.iterators.iterpeek
 
     def test_relative_import(self):
