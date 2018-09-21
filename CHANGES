@@ -3,6 +3,13 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.6.5 (2018-09-21)
+--------------------------
+
+ * Makes pockets.inspect.resolve() more robust
+ * Adds pockets.inspect.hoist_submodules and pockets.inspect.import_submodules
+
+
 Version 0.6.4 (2018-09-19)
 --------------------------
 
