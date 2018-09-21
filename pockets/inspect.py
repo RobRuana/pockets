@@ -129,7 +129,7 @@ def hoist_submodules(package, extend_all=True):
     Args:
         package (str or module): The parent package into which submodule
             exports should be hoisted.
-        extend_all (bool): If True, the `package.__all__` will be extended
+        extend_all (bool): If True, `package.__all__` will be extended
             to include the hoisted attributes. Defaults to True.
 
     Returns:
@@ -323,8 +323,8 @@ def resolve(name, modules=None):
                 package = '.'.join(module_path + [module_name])
                 try:
                     module = __import__(package, fromlist=module_name)
-                except ImportError as e:
-                    exceptions.append(e)
+                except ImportError as ex:
+                    exceptions.append(ex)
                     obj_path = [module_name] + obj_path
                     break
                 else:
@@ -337,8 +337,8 @@ def resolve(name, modules=None):
             if obj_path:
                 try:
                     return functools.reduce(getattr, obj_path, module)
-                except AttributeError as e:
-                    exceptions.append(e)
+                except AttributeError as ex:
+                    exceptions.append(ex)
             else:
                 return module
 
