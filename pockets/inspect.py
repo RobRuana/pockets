@@ -139,7 +139,9 @@ def hoist_submodules(package, extend_all=True):
     module = resolve(package)
     hoisted_attrs = []
     for submodule in import_submodules(module):
-        hoisted_attrs.extend(import_star(module, submodule))
+        for attr_name, attr in import_star(submodule).items():
+            hoisted_attrs.append(attr_name)
+            setattr(module, attr_name, attr)
 
     if extend_all:
         if getattr(module, '__all__', None) is None:
@@ -150,34 +152,29 @@ def hoist_submodules(package, extend_all=True):
     return hoisted_attrs
 
 
-def import_star(to_module, from_module):
+def import_star(module):
     """
-    Imports all exported attributes of `from_module` into `to_module`.
+    Imports all exported attributes of `module` and returns them in a `dict`.
 
     Note:
-        This only considers attributes exported by `__all__`. If `from_module`
+        This only considers attributes exported by `__all__`. If `module`
         does not define `__all__`, then nothing is imported.
 
     Effectively does::
 
-        from from_module import *
+        from module import *
 
     Args:
-        to_module (str or module): The module into which the attributes
-            are imported.
-        from_module (str or module): The module from which a wildcard import
+        module (str or module): The module from which a wildcard import
             should be done.
 
     Returns:
-        list: List of all imported attribute names.
+        dict: Map of all imported attributes.
 
     """
-    to_module = resolve(to_module)
-    from_module = resolve(from_module)
-    attrs = getattr(from_module, '__all__', [])
-    for attr in attrs:
-        setattr(to_module, attr, getattr(from_module, attr))
-    return attrs
+    module = resolve(module)
+    attrs = getattr(module, '__all__', [])
+    return dict([(attr, getattr(module, attr)) for attr in attrs])
 
 
 def import_submodules(package):

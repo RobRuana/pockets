@@ -42,7 +42,7 @@ class iterpeek(object):
 
     See Also:
         `iterpeek` can operate as a drop in replacement for the built-in
-        `iter <http://docs.python.org/2/library/functions.html#iter>`_
+        `iter <https://docs.python.org/3/library/functions.html#iter>`_
         function.
 
     Attributes:
