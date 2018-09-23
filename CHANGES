@@ -3,6 +3,13 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.7 (2018-09-23)
+------------------------
+
+ * Updates pockets.inspect.import_star() so that it returns a map of attrs
+   instead of setting them on the module
+
+
 Version 0.6.8 (2018-09-21)
 --------------------------
 
