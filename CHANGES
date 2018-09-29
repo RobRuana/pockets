@@ -3,6 +3,12 @@
 This file describes user-visible changes between pockets versions.
 
 
+Version 0.7.1 (2018-09-29)
+--------------------------
+
+ * Adds "key" parameter to pockets.collections.uniquify()
+
+
 Version 0.7 (2018-09-23)
 ------------------------
 
