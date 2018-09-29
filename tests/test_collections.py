@@ -10,6 +10,7 @@ try:
     from collections.abc import Sequence, Set
 except ImportError:
     from collections import Sequence, Set
+from datetime import datetime as dt
 
 import pytest
 import six
@@ -549,6 +550,18 @@ class TestUniquify(object):
         assert ['a'] == uniquify(['a', 'a', 'a', 'a', 'a', 'a', 'a', 'a'])
         assert ['a', 'b', 'c', 'd', 'e'] == \
             uniquify(['a', 'b', 'a', 'c', 'a', 'd', 'a', 'e'])
+
+    def test_callable_key(self):
+        assert ['ASDF', 'ZXCV'] == \
+            uniquify(['ASDF', 'asdf', 'ZXCV', 'zxcv'], key=str.lower)
+
+    def test_string_key(self):
+        assert [dt(2018, 1, 1, 9), dt(2018, 1, 2, 10)] == \
+            uniquify([
+                dt(2018, 1, 1, 9),
+                dt(2018, 1, 1, 12),
+                dt(2018, 1, 2, 10),
+                dt(2018, 1, 2, 11)], key='day')
 
     def test_cls(self):
         x = ['a', 'a']

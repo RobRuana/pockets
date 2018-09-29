@@ -403,7 +403,7 @@ def readable_join(xs, conjunction='and', sep=','):
     return (sep + ' ' if len(xs) > 2 else ' ').join(xs)
 
 
-def uniquify(x, cls=None):
+def uniquify(x, key=lambda o: o, cls=None):
     """
     Returns an order-preserved copy of `x` with duplicate items removed.
 
@@ -412,6 +412,15 @@ def uniquify(x, cls=None):
 
     Args:
         x (Sequence): Sequence to uniquify.
+
+        key (str or callable): Similar to `sorted`, specifies an attribute or
+            function of one argument that is used to extract a comparison key
+            from each list element: key=str.lower. By default, compares the
+            elements directly.
+
+            >>> strings = ['ASDF', 'asdf', 'ZXCV', 'zxcv']
+            >>> uniquify(strings, key=str.lower)
+            ['ASDF', 'ZXCV']
 
         cls (class or callable): Instead of wrapping `x` in a list, wrap it
             in an instance of `cls`. `cls` should accept an iterable object
@@ -432,7 +441,8 @@ def uniquify(x, cls=None):
         raise TypeError(
             'Unable to uniquify non-listy {0}'.format(type(x)), x)
     seen = set()
-    x = [item for item in x if item not in seen and not seen.add(item)]
+    keys = [(key(o) if callable(key) else getattr(o, key), o) for o in x]
+    x = [o for k, o in keys if k not in seen and not seen.add(k)]
 
     if cls and not (isclass(cls) and issubclass(type(x), cls)):
         x = cls(x)
