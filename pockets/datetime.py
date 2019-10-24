@@ -5,16 +5,21 @@
 """A pocket full of useful datetime tools!"""
 
 from __future__ import absolute_import, print_function
+
 import sys
 from datetime import datetime, timedelta
 
 
 __all__ = [
-    'ceil_datetime', 'floor_datetime', 'round_datetime',
-    'timedelta_total_seconds']
+    "ceil_datetime",
+    "floor_datetime",
+    "round_datetime",
+    "timedelta_total_seconds",
+]
 
 
 if sys.version_info < (2, 7):
+
     def timedelta_total_seconds(td):
         """
         Python 2.6 replacement function for timedelta.total_seconds().
@@ -27,10 +32,12 @@ if sys.version_info < (2, 7):
                 number of microseconds in `td`.
 
         """
-        total_seconds = (td.seconds + (td.days * 24.0 * 3600.0))
+        total_seconds = td.seconds + (td.days * 24.0 * 3600.0)
         return (td.microseconds + (total_seconds * 1.0e6)) / 1.0e6
 
+
 else:
+
     def timedelta_total_seconds(td):
         """
         Python 2.6 replacement function for timedelta.total_seconds().

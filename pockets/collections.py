@@ -7,6 +7,8 @@
 from __future__ import absolute_import, print_function
 
 from collections import defaultdict
+from inspect import isclass
+
 try:
     from collections.abc import Iterable, Mapping, Sized
 except ImportError:
@@ -15,14 +17,20 @@ try:
     from collections import OrderedDict
 except ImportError:
     OrderedDict = dict
-from inspect import isclass
 
 import six
 
 
 __all__ = [
-    'groupify', 'keydefaultdict', 'is_listy', 'listify', 'is_mappy', 'mappify',
-    'nesteddefaultdict', 'readable_join', 'uniquify',
+    "groupify",
+    "keydefaultdict",
+    "is_listy",
+    "listify",
+    "is_mappy",
+    "mappify",
+    "nesteddefaultdict",
+    "readable_join",
+    "uniquify",
 ]
 
 
@@ -193,6 +201,7 @@ class keydefaultdict(defaultdict):
     'Goodbye'
 
     """
+
     def __missing__(self, key):
         if self.default_factory is None:
             raise KeyError(key)
@@ -229,10 +238,12 @@ def is_listy(x):
         bool: True if `x` is "listy", False otherwise.
 
     """
-    return isinstance(x, Sized) and \
-        isinstance(x, Iterable) and \
-        not isinstance(x, (Mapping, type(b''))) and \
-        not isinstance(x, six.string_types)
+    return (
+        isinstance(x, Sized)
+        and isinstance(x, Iterable)
+        and not isinstance(x, (Mapping, type(b"")))
+        and not isinstance(x, six.string_types)
+    )
 
 
 def listify(x, minlen=0, default=None, cls=None):
@@ -380,7 +391,8 @@ def mappify(x, default=True, cls=None):
             x = dict([(v, default) for v in x])
         else:
             raise TypeError(
-                'Unable to mappify non-mappy {0}'.format(type(x)), x)
+                "Unable to mappify non-mappy {0}".format(type(x)), x
+            )
 
     if cls and not (isclass(cls) and issubclass(type(x), cls)):
         x = cls(x)
@@ -406,7 +418,7 @@ def nesteddefaultdict():
     return defaultdict(nesteddefaultdict)
 
 
-def readable_join(xs, conjunction='and', sep=','):
+def readable_join(xs, conjunction="and", sep=","):
     """
     Accepts a list of strings and separates them with commas as grammatically
     appropriate with a conjunction before the final entry. Any input strings
@@ -429,8 +441,8 @@ def readable_join(xs, conjunction='and', sep=','):
     xs = [s for s in map(lambda s: str(s).strip(), listify(xs)) if s]
     if len(xs) > 1:
         xs = list(xs)
-        xs[-1] = conjunction + ' ' + xs[-1]
-    return (sep + ' ' if len(xs) > 2 else ' ').join(xs)
+        xs[-1] = conjunction + " " + xs[-1]
+    return (sep + " " if len(xs) > 2 else " ").join(xs)
 
 
 def uniquify(x, key=lambda o: o, cls=None):
@@ -468,8 +480,7 @@ def uniquify(x, key=lambda o: o, cls=None):
 
     """
     if not is_listy(x):
-        raise TypeError(
-            'Unable to uniquify non-listy {0}'.format(type(x)), x)
+        raise TypeError("Unable to uniquify non-listy {0}".format(type(x)), x)
     seen = set()
     keys = [(key(o) if callable(key) else getattr(o, key), o) for o in x]
     x = [o for k, o in keys if k not in seen and not seen.add(k)]

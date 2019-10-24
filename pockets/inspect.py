@@ -5,20 +5,29 @@
 """A pocket full of useful reflection functions!"""
 
 from __future__ import absolute_import, print_function
+
 import inspect
 import functools
 from os.path import basename
 from pkgutil import iter_modules
 
 import six
-from pockets.collections import listify
 from six import string_types
+
+from pockets.collections import listify
 
 
 __all__ = [
-    'collect_subclasses', 'collect_superclasses',
-    'collect_superclass_attr_names', 'hoist_submodules', 'import_star',
-    'import_submodules', 'is_data', 'resolve', 'unwrap']
+    "collect_subclasses",
+    "collect_superclasses",
+    "collect_superclass_attr_names",
+    "hoist_submodules",
+    "import_star",
+    "import_submodules",
+    "is_data",
+    "resolve",
+    "unwrap",
+]
 
 
 def collect_subclasses(cls):
@@ -81,7 +90,8 @@ def collect_superclasses(cls, terminal_class=None, modules=None):
         superclasses.add(cls)
         for base in cls.__bases__:
             superclasses.update(
-                collect_superclasses(base, terminal_class, modules))
+                collect_superclasses(base, terminal_class, modules)
+            )
 
     return list(superclasses)
 
@@ -144,7 +154,7 @@ def hoist_submodules(package, extend_all=True):
             setattr(module, attr_name, attr)
 
     if extend_all:
-        if getattr(module, '__all__', None) is None:
+        if getattr(module, "__all__", None) is None:
             module.__all__ = list(hoisted_attrs)
         else:
             module.__all__.extend(hoisted_attrs)
@@ -173,7 +183,7 @@ def import_star(module):
 
     """
     module = resolve(module)
-    attrs = getattr(module, '__all__', [])
+    attrs = getattr(module, "__all__", [])
     return dict([(attr, getattr(module, attr)) for attr in attrs])
 
 
@@ -194,7 +204,7 @@ def import_submodules(package):
 
     """
     module = resolve(package)
-    if basename(module.__file__).startswith('__init__.py'):
+    if basename(module.__file__).startswith("__init__.py"):
         for _, submodule_name, _ in iter_modules(module.__path__):
             yield resolve(submodule_name, module)
 
@@ -218,8 +228,9 @@ def is_data(obj):
     Returns:
         bool: True if `obj` is "data like", False otherwise.
     """
-    if isinstance(obj, (staticmethod, classmethod, property)) or \
-            inspect.isroutine(obj):
+    if isinstance(
+        obj, (staticmethod, classmethod, property)
+    ) or inspect.isroutine(obj):
         return False
     else:
         return True
@@ -282,19 +293,19 @@ def resolve(name, modules=None):
     if not isinstance(name, string_types):
         return name
 
-    obj_path = name.split('.')
+    obj_path = name.split(".")
     search_paths = []
     if modules:
         while not obj_path[0]:
             obj_path.pop(0)
         for module_path in listify(modules):
             if isinstance(module_path, string_types):
-                search_paths.append(module_path.split('.') + obj_path)
+                search_paths.append(module_path.split(".") + obj_path)
             else:
                 search_paths.append([module_path] + obj_path)
     else:
         caller = inspect.getouterframes(inspect.currentframe())[1][0].f_globals
-        module_path = caller['__name__'].split('.')
+        module_path = caller["__name__"].split(".")
         if not obj_path[0]:
             obj_path.pop(0)
             while not obj_path[0]:
@@ -317,7 +328,7 @@ def resolve(name, modules=None):
         while obj_path:
             module_name = obj_path.pop(0)
             if isinstance(module_name, string_types):
-                package = '.'.join(module_path + [module_name])
+                package = ".".join(module_path + [module_name])
                 try:
                     module = __import__(package, fromlist=module_name)
                 except ImportError as ex:
@@ -346,8 +357,8 @@ def resolve(name, modules=None):
 
     if exceptions:
         if six.PY2:
-            msgs = ['{0}: {1}'.format(type(e).__name__, e) for e in exceptions]
-            raise ValueError('\n  '.join([msg] + msgs))
+            msgs = ["{0}: {1}".format(type(e).__name__, e) for e in exceptions]
+            raise ValueError("\n  ".join([msg] + msgs))
         else:
             chained_e = None
             for e in exceptions:
@@ -392,4 +403,4 @@ def unwrap(func):
             `functools.wrap`. `func` is returned directly, if it was never
             wrapped using `functools.wrap`.
     """
-    return unwrap(func.__wrapped__) if hasattr(func, '__wrapped__') else func
+    return unwrap(func.__wrapped__) if hasattr(func, "__wrapped__") else func

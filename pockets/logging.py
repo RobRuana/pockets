@@ -11,6 +11,7 @@ level than `logging.DEBUG`.
 """
 
 from __future__ import absolute_import, print_function
+
 import inspect
 import logging
 import logging.config
@@ -21,12 +22,15 @@ from six import text_type as unicode_type
 
 
 __all__ = [
-    'log_exceptions', 'AutoLogger', 'EagerFormattingAdapter',
-    'IndentMultilineLogFormatter']
+    "log_exceptions",
+    "AutoLogger",
+    "EagerFormattingAdapter",
+    "IndentMultilineLogFormatter",
+]
 
 
 TRACE = 5
-logging.addLevelName(TRACE, 'TRACE')
+logging.addLevelName(TRACE, "TRACE")
 logging.TRACE = TRACE
 
 
@@ -52,12 +56,13 @@ def log_exceptions(fn):
         try:
             a = [str(x)[:255] for x in args]
             kw = dict([(k[:255], str(v)[:255]) for k, v in kwargs.items()])
-            log.trace('Calling %s.%s %r %r', fn.__module__, fn.__name__, a, kw)
+            log.trace("Calling %s.%s %r %r", fn.__module__, fn.__name__, a, kw)
             return fn(*args, **kwargs)
         except Exception as e:
-            log.error('Error calling function %s: %s' % (fn.__name__, e))
+            log.error("Error calling function %s: %s" % (fn.__name__, e))
             log.exception(e)
             raise
+
     return wrapper
 
 
@@ -82,8 +87,10 @@ class AutoLogger(object):
         adapter_kwargs (dict): optional kwargs to use when instantiating an
             instance of `adapter_class`.
     """
-    def __init__(self, adapter_class=None, adapter_args=None,
-                 adapter_kwargs=None):
+
+    def __init__(
+        self, adapter_class=None, adapter_args=None, adapter_kwargs=None
+    ):
         if adapter_args is None:
             adapter_args = []
         if adapter_kwargs is None:
@@ -95,17 +102,20 @@ class AutoLogger(object):
 
     def __getattr__(self, name):
         f_locals = inspect.currentframe().f_back.f_locals
-        if 'self' in f_locals and f_locals['self'] is not None:
-            other = f_locals['self']
-            caller_name = '%s.%s' % (other.__class__.__module__,
-                                     other.__class__.__name__)
+        if "self" in f_locals and f_locals["self"] is not None:
+            other = f_locals["self"]
+            caller_name = "%s.%s" % (
+                other.__class__.__module__,
+                other.__class__.__name__,
+            )
         else:
-            caller_name = inspect.currentframe().f_back.f_globals['__name__']
+            caller_name = inspect.currentframe().f_back.f_globals["__name__"]
         logger = logging.getLogger(caller_name)
 
         if self.adapter_class:
-            logger = self.adapter_class(logger, *self.adapter_args,
-                                        **self.adapter_kwargs)
+            logger = self.adapter_class(
+                logger, *self.adapter_args, **self.adapter_kwargs
+            )
 
         return getattr(logger, name)
 
@@ -129,6 +139,7 @@ class EagerFormattingAdapter(logging.LoggerAdapter):
         logger (Logger): The underlying Logger instance to use.
         extra (dict): Extra args, ignored by this implementation.
     """
+
     def __init__(self, logger, extra=None):
         """
         Initialize the adapter with a logger and a dict-like object which
@@ -151,7 +162,7 @@ class EagerFormattingAdapter(logging.LoggerAdapter):
         Otherwise we just drop the log message (and return a string indicating
         that it was suppreseed).
         """
-        if not hasattr(self, 'isEnabledFor') or self.isEnabledFor(level):
+        if not hasattr(self, "isEnabledFor") or self.isEnabledFor(level):
             # Do the string formatting immediately.
             if args:
                 return self._getUnterpolatedMessage(msg, args)
@@ -162,7 +173,7 @@ class EagerFormattingAdapter(logging.LoggerAdapter):
             # going wrong in the future.  This text shoudl clue one in to
             # what's going on in the bizarre edge case where this ever does
             # show up.
-            return '(log message suppressed due to insufficient log level)'
+            return "(log message suppressed due to insufficient log level)"
 
     def _getUnterpolatedMessage(self, msg, args):
         """
@@ -190,7 +201,7 @@ class EagerFormattingAdapter(logging.LoggerAdapter):
             # From PEP-3101, value errors are of the type raised by the format
             # method itself, so see if we should fall back to original
             # formatting since there was an issue
-            if '%' in msg:
+            if "%" in msg:
                 msg = msg % args
             else:
                 # We should NOT fall back, since there's no possible string
@@ -198,7 +209,7 @@ class EagerFormattingAdapter(logging.LoggerAdapter):
                 # message
                 raise
 
-        if msg == original_msg and '%' in msg:
+        if msg == original_msg and "%" in msg:
             # There must have been no string formatting methods used, given
             # the presence of args without a change in the msg
             if len(args) == 1 and isinstance(args[0], dict):
@@ -258,7 +269,7 @@ class EagerFormattingAdapter(logging.LoggerAdapter):
         Delegate an exception call to the underlying logger, after adding
         contextual information from this adapter instance.
         """
-        kwargs['exc_info'] = 1
+        kwargs["exc_info"] = 1
         self.log(logging.ERROR, msg, *args, **kwargs)
 
     def critical(self, msg, *args, **kwargs):
@@ -293,6 +304,7 @@ class IndentMultilineLogFormatter(logging.Formatter):
     Indents all lines that start with a newline so they are easier for
     external log programs to parse.
     """
+
     def format(self, record):
         """
         Formats the given `LogRecord` by indenting all newlines.
@@ -307,4 +319,4 @@ class IndentMultilineLogFormatter(logging.Formatter):
             s = logging.Formatter.format(self, record)
         else:
             s = super(IndentMultilineLogFormatter, self).format(record)
-        return s.rstrip('\n').replace('\n', '\n  ')
+        return s.rstrip("\n").replace("\n", "\n  ")

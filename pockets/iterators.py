@@ -5,12 +5,13 @@
 """A pocket full of useful iterators!"""
 
 from __future__ import absolute_import, print_function
+
 import collections
 
 import six
 
 
-__all__ = ['itermod', 'iterpeek', 'modify_iter', 'peek_iter']
+__all__ = ["itermod", "iterpeek", "modify_iter", "peek_iter"]
 
 
 class iterpeek(object):
@@ -52,6 +53,7 @@ class iterpeek(object):
             instance: ``object()``.
 
     """
+
     def __init__(self, *args):
         """__init__(o, sentinel=None)"""
         self._iterable = iter(*args)
@@ -64,7 +66,7 @@ class iterpeek(object):
     def __next__(self, n=None):
         # NOTE: Prevent 2to3 from transforming self.next() in next(self),
         # which causes an infinite loop!
-        return getattr(self, 'next')(n)
+        return getattr(self, "next")(n)
 
     def _fillcache(self, n):
         """Cache `n` items. If `n` is 0 or None, then 1 item is cached."""
@@ -232,18 +234,18 @@ class itermod(iterpeek):
             `modifier`; it will always be returned from `peek` unmodified.
 
     """
+
     def __init__(self, *args, **kwargs):
         """__init__(o, sentinel=None, modifier=lambda x: x)"""
-        if 'modifier' in kwargs:
-            self.modifier = kwargs['modifier']
+        if "modifier" in kwargs:
+            self.modifier = kwargs["modifier"]
         elif len(args) > 2:
             self.modifier = args[2]
             args = args[:2]
         else:
             self.modifier = lambda x: x
         if not six.callable(self.modifier):
-            raise TypeError(
-                'itermod(o, modifier): modifier must be callable')
+            raise TypeError("itermod(o, modifier): modifier must be callable")
         super(itermod, self).__init__(*args)
 
     def _fillcache(self, n):

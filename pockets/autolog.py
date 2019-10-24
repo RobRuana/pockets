@@ -16,10 +16,11 @@ See Also:
 """
 
 from __future__ import absolute_import, print_function
+
 from pockets.logging import AutoLogger
 
 
-__all__ = ['log']
+__all__ = ["log"]
 
 
 log = AutoLogger()

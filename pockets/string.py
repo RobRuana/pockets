@@ -5,15 +5,23 @@
 """A pocket full of useful string manipulation tools!"""
 
 from __future__ import absolute_import, print_function
+
 import re
+
 import six
 
 from pockets.collections import is_listy, listify
 
 
 __all__ = [
-    'camel', 'uncamel', 'fieldify', 'unfieldify', 'sluggify', 'splitcaps',
-    'splitify', 'UnicodeMixin',
+    "camel",
+    "uncamel",
+    "fieldify",
+    "unfieldify",
+    "sluggify",
+    "splitcaps",
+    "splitify",
+    "UnicodeMixin",
 ]
 
 
@@ -23,37 +31,40 @@ if six.PY2:
 else:
     RE_FLAGS = re.M | re.U
 
-RE_NONWORD = re.compile(r'[\W_]+')
+RE_NONWORD = re.compile(r"[\W_]+")
 
 RE_SPLITCAPS = re.compile(
     # Clause 1
-    r'[A-Z]+[^a-z]*'  # All non-lowercase beginning with a capital letter
-    r'(?=[A-Z][^A-Z]*?[a-z]|$)'  # Followed by a capitalized word
-    r'|'
+    r"[A-Z]+[^a-z]*"  # All non-lowercase beginning with a capital letter
+    r"(?=[A-Z][^A-Z]*?[a-z]|$)"  # Followed by a capitalized word
+    r"|"
     # Clause 2
-    r'[A-Z][^A-Z]*?[a-z]+[^A-Z]*'  # Capitalized word
-    r'|'
+    r"[A-Z][^A-Z]*?[a-z]+[^A-Z]*" r"|"  # Capitalized word
     # Clause 3
-    r'[^A-Z]+',  # All non-uppercase
-    RE_FLAGS)
+    r"[^A-Z]+",  # All non-uppercase
+    RE_FLAGS,
+)
 
 RE_UNCAMEL = re.compile(
-    r'('  # The whole expression is in a single group
+    r"("  # The whole expression is in a single group
     # Clause 1
-    r'(?<=[^\sA-Z])'  # Preceded by neither a space nor a capital letter
-    r'[A-Z]+[^a-z\s]*'  # All non-lowercase beginning with a capital letter
-    r'(?=[A-Z][^A-Z\s]*?[a-z]|\s|$)'  # Followed by a capitalized word
-    r'|'
+    r"(?<=[^\sA-Z])"  # Preceded by neither a space nor a capital letter
+    r"[A-Z]+[^a-z\s]*"  # All non-lowercase beginning with a capital letter
+    r"(?=[A-Z][^A-Z\s]*?[a-z]|\s|$)"  # Followed by a capitalized word
+    r"|"
     # Clause 2
-    r'(?<=[^\s])'  # Preceded by a character that is not a space
-    r'[A-Z][^A-Z\s]*?[a-z]+[^A-Z\s]*'  # Capitalized word
-    r')', RE_FLAGS)
+    r"(?<=[^\s])"  # Preceded by a character that is not a space
+    r"[A-Z][^A-Z\s]*?[a-z]+[^A-Z\s]*"  # Capitalized word
+    r")",
+    RE_FLAGS,
+)
 
-RE_WHITESPACE_GROUP = re.compile(r'(\s+)', RE_FLAGS)
+RE_WHITESPACE_GROUP = re.compile(r"(\s+)", RE_FLAGS)
 
 
-def camel(s, sep='_', lower_initial=False, upper_segments=None,
-          preserve_upper=False):
+def camel(
+    s, sep="_", lower_initial=False, upper_segments=None, preserve_upper=False
+):
     """
     Convert underscore_separated string (aka snake_case) to CamelCase.
 
@@ -155,7 +166,7 @@ def camel(s, sep='_', lower_initial=False, upper_segments=None,
     return "".join(result)
 
 
-def uncamel(s, sep='_'):
+def uncamel(s, sep="_"):
     """
     Convert CamelCase string to underscore_separated (aka snake_case).
 
@@ -192,10 +203,10 @@ def uncamel(s, sep='_'):
         str: uncamel_cased version of `s`.
 
     """
-    return RE_UNCAMEL.sub(r'{0}\1'.format(sep), s).lower()
+    return RE_UNCAMEL.sub(r"{0}\1".format(sep), s).lower()
 
 
-def fieldify(s, sep='_'):
+def fieldify(s, sep="_"):
     """
     Convert a string into a valid "field-like" variable name.
 
@@ -216,11 +227,11 @@ def fieldify(s, sep='_'):
 
     """
     if not s:
-        return ''
+        return ""
     return RE_NONWORD.sub(sep, uncamel(s)).strip(sep)
 
 
-def unfieldify(s, sep='_'):
+def unfieldify(s, sep="_"):
     """
     Makes a best effort to reverse the algorithm from `fieldify`.
 
@@ -241,12 +252,12 @@ def unfieldify(s, sep='_'):
 
     """
     if not s:
-        return ''
-    s = s.strip(r'{0} '.format(sep))
-    return (' '.join([w for w in s.split(sep) if w])).title()
+        return ""
+    s = s.strip(r"{0} ".format(sep))
+    return (" ".join([w for w in s.split(sep) if w])).title()
 
 
-def sluggify(s, sep='-'):
+def sluggify(s, sep="-"):
     """
     Convert a string into a "slug" suitable for use in a URL.
 
@@ -267,7 +278,7 @@ def sluggify(s, sep='-'):
 
     """
     if not s:
-        return ''
+        return ""
     return RE_NONWORD.sub(sep, s).lower().strip(sep)
 
 
@@ -358,8 +369,8 @@ def splitcaps(s, pattern=None, maxsplit=None, flags=0):
 
         if maxsplit > 0 and len(result) >= maxsplit:
             if m.end() < len(s):
-                post_maxsplit.append(s[m.end():])
-            post_maxsplit = ''.join(post_maxsplit)
+                post_maxsplit.append(s[m.end() :])
+            post_maxsplit = "".join(post_maxsplit)
             if post_maxsplit:
                 result.append(post_maxsplit)
             break
@@ -423,8 +434,11 @@ class UnicodeMixin(object):
     """
 
     if six.PY2:
+
         def __str__(self):
-            return self.__unicode__().encode('utf8')
+            return self.__unicode__().encode("utf8")
+
     else:
+
         def __str__(self):
             return self.__unicode__()
