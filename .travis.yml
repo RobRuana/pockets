@@ -3,8 +3,6 @@ matrix:
   include:
     - python: "2.7"
       env: TOX_ENV=flake8
-    - python: "2.6"
-      env: TOX_ENV=py26
     - python: "2.7"
       env: TOX_ENV=py27
     - python: "3.4"
@@ -13,16 +11,18 @@ matrix:
       env: TOX_ENV=py35
     - python: "3.6"
       env: TOX_ENV=py36
+    - python: "3.7"
+      env: TOX_ENV=py37
     - python: "pypy"
       env: TOX_ENV=pypy
 install:
   - pip install tox
-  - if [[ $TOX_ENV == py27 ]] || [[ $TOX_ENV == py36 ]]; then
+  - if [[ $TOX_ENV == py27 ]] || [[ $TOX_ENV == py37 ]]; then
       pip install coveralls;
     fi
 script:
   - tox -e $TOX_ENV
 after_success:
-  - if [[ $TOX_ENV == py27 ]] || [[ $TOX_ENV == py36 ]]; then
+  - if [[ $TOX_ENV == py27 ]] || [[ $TOX_ENV == py37 ]]; then
       coveralls;
     fi

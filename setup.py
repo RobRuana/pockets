@@ -5,6 +5,7 @@
 """A collection of helpful Python tools!"""
 
 import os
+
 from setuptools import setup, find_packages
 
 
@@ -16,7 +17,7 @@ reqs = open('requirements.txt', 'r').read().strip().splitlines()
 
 setup(
     name='pockets',
-    version=__version__,
+    version=__version__,  # noqa: F821
     url='http://pockets.readthedocs.org',
     download_url='http://pypi.python.org/pypi/pockets',
     license='BSD',

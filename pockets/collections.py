@@ -5,26 +5,25 @@
 """A pocket full of useful collection tools!"""
 
 from __future__ import absolute_import, print_function
+
 from collections import defaultdict
 try:
     from collections.abc import Iterable, Mapping, Sized
 except ImportError:
     from collections import Iterable, Mapping, Sized
-
+try:
+    from collections import OrderedDict
+except ImportError:
+    OrderedDict = dict
 from inspect import isclass
 
 import six
 
 
-try:
-    from collections import OrderedDict
-except ImportError:
-    OrderedDict = dict
-
-
 __all__ = [
-    'groupify', 'keydefaultdict', 'is_listy', 'listify', 'mappify',
-    'nesteddefaultdict', 'readable_join', 'uniquify']
+    'groupify', 'keydefaultdict', 'is_listy', 'listify', 'is_mappy', 'mappify',
+    'nesteddefaultdict', 'readable_join', 'uniquify',
+]
 
 
 def groupify(items, keys, val_key=None):
@@ -299,6 +298,37 @@ def listify(x, minlen=0, default=None, cls=None):
     if cls and not (isclass(cls) and issubclass(type(x), cls)):
         x = cls(x)
     return x
+
+
+def is_mappy(x):
+    """
+    Return True if `x` is "mappy", i.e. a map-like object.
+
+    "Mappy" is defined as any instance of `collections.Mapping`:
+
+    >>> is_mappy({'a': 'b'})
+    True
+    >>> from collections import defaultdict
+    >>> is_mappy(defaultdict(list))
+    True
+    >>> is_mappy('a regular string')
+    False
+    >>> is_mappy(['a', 'b'])
+    False
+    >>> is_listy(iter({'a': 'b'}))
+    False
+
+    Note:
+        Iterables and generators fail the "mappy" test.
+
+    Args:
+        x (any value): The object to test.
+
+    Returns:
+        bool: True if `x` is "mappy", False otherwise.
+
+    """
+    return isinstance(x, Mapping)
 
 
 def mappify(x, default=True, cls=None):

@@ -8,12 +8,13 @@ from __future__ import absolute_import, print_function
 import re
 import six
 
-from pockets.collections import listify
+from pockets.collections import is_listy, listify
 
 
 __all__ = [
     'camel', 'uncamel', 'fieldify', 'unfieldify', 'sluggify', 'splitcaps',
-    'UnicodeMixin']
+    'splitify', 'UnicodeMixin',
+]
 
 
 # Default regular expression flags
@@ -364,6 +365,50 @@ def splitcaps(s, pattern=None, maxsplit=None, flags=0):
             break
 
     return result if len(result) > 0 else [s]
+
+
+def splitify(value, separator=",", strip=True, include_empty=False):
+    """
+    Convert a value to a list using a supercharged `split()`.
+
+    If `value` is a string, it is split by `separator`. If `separator` is
+    `None` or empty, no attempt to split is made, and `value` is returned as
+    the only item in a list.
+
+    If `strip` is `True`, then the split strings will be stripped of
+    whitespace. If `strip` is a string, then the split strings will be
+    stripped of the given string.
+
+    If `include_empty` is `False`, then empty split strings will not be
+    included in the returned list.
+
+    If `value` is `None` an empty list is returned.
+
+    If `value` is already "listy", it is returned as-is.
+
+    If `value` is any other type, it is returned as the only item in a list.
+
+    >>> splitify("first item, second item")
+    ['first item', 'second item']
+    >>> splitify("first path: second path: :skipped empty path", ":")
+    ['first path', 'second path', 'skipped empty path']
+    >>> splitify(["already", "split"])
+    ['already', 'split']
+    >>> splitify(None)
+    []
+    >>> splitify(1969)
+    [1969]
+    """
+    if is_listy(value):
+        return value
+
+    if isinstance(value, str) and separator:
+        parts = value.split(separator)
+        if strip:
+            strip = None if strip is True else strip
+            parts = [s.strip(strip) for s in parts]
+        return [s for s in parts if include_empty or s]
+    return listify(value)
 
 
 class UnicodeMixin(object):

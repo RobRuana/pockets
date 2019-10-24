@@ -5,6 +5,7 @@
 """Tests for :mod:`pockets.string` module."""
 
 from __future__ import absolute_import, print_function
+
 import re
 
 import pytest
@@ -12,7 +13,7 @@ import six
 from six import u
 
 from pockets.string import camel, uncamel, fieldify, unfieldify, sluggify, \
-    splitcaps, UnicodeMixin
+    splitcaps, splitify, UnicodeMixin
 
 
 class TestCamel(object):
@@ -843,6 +844,25 @@ class TestSplitcaps(object):
     ])
     def test_flags(self, s, expected, kwargs):
         self._run_test(s, expected, kwargs)
+
+
+class TestSplitify(object):
+
+    @pytest.mark.parametrize('s,kw,expected', [
+        ('t, t', {}, ['t', 't']),
+        ('t, , t', {}, ['t', 't']),
+        ('t t', {}, ['t t']),
+        (1969, {}, [1969]),
+        ([1, '2'], {}, [1, '2']),
+        (None, {}, []),
+        ('t, t', {'separator': ':'}, ['t, t']),
+        ('t: t', {'separator': ':'}, ['t', 't']),
+        ('t,   t', {'strip': False}, ['t', '   t']),
+        ('t, , t', {'strip': False}, ['t', ' ', ' t']),
+        ('t, , t', {'include_empty': True}, ['t', '', 't']),
+    ])
+    def test_splitify(self, s, kw, expected):
+        assert splitify(s, **kw) == expected
 
 
 class TestUnicodeMixin(object):

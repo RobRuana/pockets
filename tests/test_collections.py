@@ -17,7 +17,7 @@ import six
 from six import u
 
 from pockets.collections import groupify, keydefaultdict, is_listy, listify, \
-    mappify, nesteddefaultdict, readable_join, uniquify
+    is_mappy, mappify, nesteddefaultdict, readable_join, uniquify
 
 
 class Reminder:
@@ -427,6 +427,19 @@ class TestReadableJoin(object):
     ])
     def test_readable_join(self, xs, args, expected):
         assert readable_join(xs, *args) == expected
+
+
+class TestIsMappy(object):
+
+    @pytest.mark.parametrize('x,expected', [
+        (dict(), True),
+        (defaultdict(list), True),
+        (list(), False),
+        (set(), False),
+        ('string', False),
+    ])
+    def test_splitify(self, x, expected):
+        assert is_mappy(x) == expected
 
 
 class TestMappify(object):
