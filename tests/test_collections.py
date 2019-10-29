@@ -511,7 +511,7 @@ class TestMappify(object):
         assert x != y
 
     def test_none(self):
-        pytest.raises(TypeError, mappify, None)
+        assert {} == mappify(None)
 
     def test_set(self):
         assert {} == mappify(set())

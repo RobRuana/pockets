@@ -251,7 +251,8 @@ def listify(x, minlen=0, default=None, cls=None):
     Return a listified version of `x`.
 
     If `x` is a non-string iterable, it is wrapped in a list; otherwise
-    a list is returned with `x` as its only element.
+    a list is returned with `x` as its only element. If `x` is `None`, an
+    empty list is returned.
 
     >>> listify('a regular string')
     ['a regular string']
@@ -259,6 +260,8 @@ def listify(x, minlen=0, default=None, cls=None):
     ['a', 'b', 'c']
     >>> listify({'a': 'A'})
     [{'a': 'A'}]
+    >>> listify(None)
+    []
 
     Note:
         Not guaranteed to return a copy of `x`. If `x` is already a list and
@@ -348,7 +351,8 @@ def mappify(x, default=True, cls=None):
 
     If `x` is a string, it becomes the only key of the returned dict. If `x`
     is a non-string iterable, the elements of `x` become keys in the returned
-    dict. The values of the returned dict are set to `default`.
+    dict. The values of the returned dict are set to `default`. If `x` is
+    `None`, an empty dict is returned.
 
     If `x` is a map, it is returned directly.
 
@@ -358,6 +362,8 @@ def mappify(x, default=True, cls=None):
     {'a': True}
     >>> mappify({'a': 'A'})
     {'a': 'A'}
+    >>> mappify(None)
+    {}
 
     Note:
         Not guaranteed to return a copy of `x`. If `x` is already a map and
@@ -384,11 +390,16 @@ def mappify(x, default=True, cls=None):
         TypeError: If `x` is not a map, iterable, or string.
 
     """
-    if not isinstance(x, Mapping):
+    if x is None:
+        x = {}
+    elif not isinstance(x, Mapping):
         if isinstance(x, six.string_types):
             x = {x: default}
         elif isinstance(x, Iterable):
-            x = dict([(v, default) for v in x])
+            # If cls is specified, attempt to preserve the order of x, in
+            # case cls is also a class that preserves order.
+            arg = [(v, default) for v in x]
+            x = OrderedDict(arg) if cls else dict(arg)
         else:
             raise TypeError(
                 "Unable to mappify non-mappy {0}".format(type(x)), x
