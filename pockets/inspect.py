@@ -15,6 +15,7 @@ import six
 from six import string_types
 
 from pockets.collections import listify
+from pockets.string import splitify
 
 
 __all__ = [
@@ -260,6 +261,8 @@ def resolve(name, modules=None):
     no leading dots, resolution is first attempted absolutely and then
     relative to the calling module.
 
+    Pass an empty string for `modules` to only use absolute resolution.
+
     Warning:
         Do not resolve strings supplied by an end user without specifying
         `modules`. Instantiating an arbitrary object specified by an end user
@@ -293,16 +296,13 @@ def resolve(name, modules=None):
     if not isinstance(name, string_types):
         return name
 
-    obj_path = name.split(".")
+    obj_path = splitify(name, ".", include_empty=True)
     search_paths = []
-    if modules:
-        while not obj_path[0]:
+    if modules is not None:
+        while not obj_path[0].strip():
             obj_path.pop(0)
         for module_path in listify(modules):
-            if isinstance(module_path, string_types):
-                search_paths.append(module_path.split(".") + obj_path)
-            else:
-                search_paths.append([module_path] + obj_path)
+            search_paths.append(splitify(module_path, ".") + obj_path)
     else:
         caller = inspect.getouterframes(inspect.currentframe())[1][0].f_globals
         module_path = caller["__name__"].split(".")
@@ -327,6 +327,8 @@ def resolve(name, modules=None):
         obj_path = list(path)
         while obj_path:
             module_name = obj_path.pop(0)
+            while not module_name:
+                module_name = obj_path.pop(0)
             if isinstance(module_name, string_types):
                 package = ".".join(module_path + [module_name])
                 try:
@@ -356,20 +358,8 @@ def resolve(name, modules=None):
         msg = "Unable to resolve '{0}'".format(name)
 
     if exceptions:
-        if six.PY2:
-            msgs = ["{0}: {1}".format(type(e).__name__, e) for e in exceptions]
-            raise ValueError("\n  ".join([msg] + msgs))
-        else:
-            chained_e = None
-            for e in exceptions:
-                if chained_e:
-                    try:
-                        six.raise_from(e, chained_e)
-                    except Exception as new_chained_e:
-                        chained_e = new_chained_e
-                else:
-                    chained_e = e
-            six.raise_from(ValueError(msg), chained_e)
+        msgs = ["{0}: {1}".format(type(e).__name__, e) for e in exceptions]
+        raise ValueError("\n    ".join([msg] + msgs))
     else:
         raise ValueError(msg)
 
